@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_subjects" ADD COLUMN "question_duration" bigint;

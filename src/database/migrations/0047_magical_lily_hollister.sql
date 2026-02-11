@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_subjects" ALTER COLUMN "generator_code" DROP NOT NULL;

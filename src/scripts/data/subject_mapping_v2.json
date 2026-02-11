@@ -1,0 +1,119 @@
+[
+    {
+        "name": "Kemampuan Penalaran Umum",
+        "topics": [
+            "Aritmatika Sosial",
+            "Aturan Pencacahan",
+            "Barisan dan Deret",
+            "Operasi Bilangan",
+            "Pembacaan Grafik/Tabel",
+            "Penarikan Kesimpulan",
+            "Penelitian Sosial",
+            "Perbandingan",
+            "Pernyataan dalam Teks",
+            "Persamaan Linear",
+            "Persamaan, Pertidaksamaan Linear Satu Variabel, dan Nilai Mutlak",
+            "Pola Bilangan dan Huruf",
+            "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+            "Sistem Persamaan Linear Tiga Variabel (SPLTV)",
+            "Statistika Dasar",
+            "Penalaran Deduktif",
+            "Penalaran Induktif"
+        ]
+    },
+    {
+        "name": "Kemampuan Memahami Bacaan dan Menulis",
+        "topics": [
+            "Analisis Bacaan dan Kepaduan Paragraf",
+            "EYD V",
+            "Frasa",
+            "Ide Pokok",
+            "Kalimat",
+            "Kata",
+            "Pemahaman Bacaan",
+            "Semantik",
+            "Sikap dan Tujuan Penulis"
+        ]
+    },
+    {
+        "name": "Pengetahuan dan Pemahaman Umum",
+        "topics": [
+            "Analisis Bacaan dan Kepaduan Paragraf",
+            "Ide Pokok",
+            "Kalimat",
+            "Kata",
+            "Kesimpulan",
+            "Pemahaman Bacaan",
+            "Penalaran Teks",
+            "Pernyataan dalam Teks",
+            "Semantik",
+            "Sikap dan Tujuan Penulis"
+        ]
+    },
+    {
+        "name": "Pengetahuan Kuantitatif",
+        "topics": [
+            "Aturan Pencacahan",
+            "Aturan Sinus dan Cosinus",
+            "Barisan dan Deret",
+            "Fungsi",
+            "Geometri",
+            "Himpunan",
+            "Operasi Bilangan",
+            "Pangkat Sederhana",
+            "Persamaan Linear",
+            "Persamaan, Pertidaksamaan Linear Satu Variabel, dan Nilai Mutlak",
+            "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+            "Trigonometri Dasar"
+        ]
+    },
+    {
+        "name": "Literasi dalam Bahasa Indonesia",
+        "topics": [
+            "Analisis Bacaan dan Kepaduan Paragraf",
+            "Cerita Pendek",
+            "Ide Pokok",
+            "Kesimpulan",
+            "Pemahaman Bacaan",
+            "Penalaran Teks",
+            "Pernyataan dalam Teks",
+            "Semantik",
+            "Sikap dan Tujuan Penulis"
+        ]
+    },
+    {
+        "name": "Literasi dalam Bahasa Inggris",
+        "topics": [
+            "Author's Attitude and Writing Organisation",
+            "Cohesion and Coherence",
+            "Finding Detailed Information",
+            "Inference and Conclusion",
+            "Main Idea and Topic",
+            "Paraphrase",
+            "Purpose of the Text",
+            "Reference",
+            "Semantics",
+            "Stated-Unstated Question"
+        ]
+    },
+    {
+        "name": "Penalaran Matematika",
+        "topics": [
+            "Aritmatika Sosial",
+            "Aturan Pencacahan",
+            "Fungsi",
+            "Geometri",
+            "Kecepatan dan Debit",
+            "Operasi Bilangan",
+            "Pangkat Sederhana",
+            "Peluang",
+            "Perbandingan",
+            "Persamaan Linear",
+            "Persamaan, Pertidaksamaan Linear Satu Variabel, dan Nilai Mutlak",
+            "Sistem Persamaan Linear Dua Variabel (SPLDV)",
+            "Sistem Persamaan Linear Tiga Variabel (SPLTV)",
+            "Statistika Dasar",
+            "Trigonometri Dasar"
+        ]
+    }
+]

@@ -1,0 +1,1 @@
+ALTER TABLE "question_attempts" DROP CONSTRAINT "question_attempts_timed_questions_id_unique";

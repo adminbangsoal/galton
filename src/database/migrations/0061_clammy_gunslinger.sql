@@ -1,0 +1,1 @@
+ALTER TABLE "subjects" ADD COLUMN "year" varchar(4);

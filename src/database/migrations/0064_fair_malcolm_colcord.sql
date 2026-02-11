@@ -1,0 +1,1 @@
+ALTER TYPE "tryout_question_type" ADD VALUE 'multiple-answer';

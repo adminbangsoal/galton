@@ -1,0 +1,1 @@
+ALTER TABLE "timed_questions_time_mapping" ADD COLUMN "question_limit" integer DEFAULT 10 NOT NULL;

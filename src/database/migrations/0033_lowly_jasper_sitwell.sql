@@ -1,0 +1,1 @@
+ALTER TYPE "tryout_generator_code" ADD VALUE 'logic';

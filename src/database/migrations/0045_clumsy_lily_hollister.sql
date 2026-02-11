@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_pembahasan" ADD COLUMN "pembahasan_image" text DEFAULT '';

@@ -1,0 +1,1 @@
+ALTER TYPE "question_types" ADD VALUE 'multiple-answer';

@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_subjects" DROP COLUMN IF EXISTS "time_limit";

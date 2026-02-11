@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_subjects" ALTER COLUMN "name" SET DATA TYPE varchar(100);

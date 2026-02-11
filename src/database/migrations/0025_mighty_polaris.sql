@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_registrations" ALTER COLUMN "created_at" SET DEFAULT now();

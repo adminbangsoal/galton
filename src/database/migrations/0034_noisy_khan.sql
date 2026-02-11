@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_set_attempts" ADD CONSTRAINT "tryout_set_attempts_tryout_id_tryout_set_id_user_id_unique" UNIQUE("tryout_id","tryout_set_id","user_id");

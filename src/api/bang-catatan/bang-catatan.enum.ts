@@ -1,0 +1,34 @@
+export enum BangCatatanTipeEnum {
+  CATATAN = 'catatan',
+  PEMBAHASAN = 'pembahasan',
+  SLIDE = 'slide',
+  PRESENTASI = 'presentasi',
+  CHEATSHEET = 'cheatsheet',
+  CORETAN = 'coretan',
+  TUGAS = 'tugas',
+  UJIAN = 'ujian',
+  LAINNYA = 'lainnya',
+
+}
+
+export enum BangCatatanThemeEnum {
+  GRAY = 'gray',
+  RED = 'red',
+  ORANGE = 'orange',
+  AMBER = 'amber',
+  YELLOW = 'yellow',
+  LIME = 'lime',
+  GREEN = 'green',
+  EMERALD = 'emerald',
+  CYAN = 'cyan',
+  TEAL = 'teal',
+  SKY = 'sky',
+  BLUE = 'blue',
+  INDIGO = 'indigo',
+  PURPLE = 'purple',
+  VIOLET = 'violet',
+  ROSE = 'rose',
+  PINK = 'pink',
+  FUCHSIA = 'fuchsia',
+
+}

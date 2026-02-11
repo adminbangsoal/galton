@@ -1,0 +1,1 @@
+ALTER TABLE "timed_questions_classic_questions" ALTER COLUMN "subject_id" SET NOT NULL;

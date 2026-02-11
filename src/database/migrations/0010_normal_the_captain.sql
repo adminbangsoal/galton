@@ -1,0 +1,2 @@
+ALTER TABLE "timed_questions" ALTER COLUMN "current_number" SET DEFAULT 0;--> statement-breakpoint
+ALTER TABLE "question_attempts" ADD CONSTRAINT "question_attempts_timed_questions_id_question_id_unique" UNIQUE("timed_questions_id","question_id");

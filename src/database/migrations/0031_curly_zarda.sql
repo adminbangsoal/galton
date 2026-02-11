@@ -1,0 +1,1 @@
+ALTER TABLE "tryouts" ADD COLUMN "start_date" timestamp DEFAULT now() NOT NULL;

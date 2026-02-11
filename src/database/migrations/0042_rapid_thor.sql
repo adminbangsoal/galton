@@ -1,0 +1,1 @@
+ALTER TABLE "bang_catatan" ALTER COLUMN "description" SET DATA TYPE text;

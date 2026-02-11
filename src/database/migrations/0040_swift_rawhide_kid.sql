@@ -1,0 +1,1 @@
+ALTER TABLE "bang_catatan" ADD COLUMN "note_type" "note_type" NOT NULL;

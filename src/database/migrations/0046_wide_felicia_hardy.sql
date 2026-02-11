@@ -1,0 +1,1 @@
+ALTER TABLE "tryout_sets" ADD COLUMN "order" integer;

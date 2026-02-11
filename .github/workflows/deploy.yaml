@@ -1,0 +1,49 @@
+name: Deploy To Production
+
+on:
+  push:
+    branches:
+      - main  # You can change this to any branch you want to use for deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'  # Adjust Node.js version to your requirement
+
+    - name: Install pnpm
+      run: |
+        npm install -g pnpm
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build application
+      run: pnpm run build
+
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no bangsoal@103.176.78.83 << 'EOF'
+         export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+          nvm use 20  # Use the version of Node.js installed (v20 in your case)
+
+          cd ~/newton  
+          git pull origin develop --no-ff      
+          pnpm install                  # Install any new dependencies
+          pnpm run build                # Build the NestJS application
+          pm2 restart all               # Restart the app using PM2
+        EOF
+

@@ -1,0 +1,1 @@
+export const TOTAL_USERS_PER_PAGE = 5;

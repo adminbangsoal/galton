@@ -1,0 +1,1 @@
+ALTER TABLE "timed_questions" ALTER COLUMN "subject_id" DROP NOT NULL;
