@@ -17,18 +17,18 @@ import { Options } from './options.schema';
 type QuestionContent = {
   content: string;
   asset_url: string;
-}
+};
 
 export type Content = {
   content: string;
   isMedia: boolean;
-}
+};
 
 export const questionTypes = pgEnum('question_types', [
   'multiple-choice',
   'fill-in',
   'table-choice',
-  'multiple-answer'
+  'multiple-answer',
 ]);
 
 export const questions = pgTable('questions', {
@@ -61,5 +61,5 @@ export const questions = pgTable('questions', {
   filledAnswer: jsonb('filled_answer').$type<string[]>().default([]),
 });
 
-export type  Question = typeof questions.$inferSelect;
-export type QuestionType = typeof questionTypes
+export type Question = typeof questions.$inferSelect;
+export type QuestionType = typeof questionTypes;

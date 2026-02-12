@@ -27,7 +27,7 @@ import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
 @ApiTags('Tryout')
 @Controller('tryouts')
 export class TryoutController {
-  constructor(private readonly tryoutService: TryoutService) { }
+  constructor(private readonly tryoutService: TryoutService) {}
 
   @ApiBearerAuth()
   @Get('/')
@@ -57,16 +57,17 @@ export class TryoutController {
   @UseGuards(JwtAuthGuard)
   async getTryoutState(@Req() req: Request) {
     const userId = (req.user as any).userId;
-    return await this.tryoutService.getCurrentTryoutState(userId)
+    return await this.tryoutService.getCurrentTryoutState(userId);
   }
 
   @ApiBearerAuth()
   @Get('/sets/:tryout_id/sequence')
   @UseGuards(JwtAuthGuard)
-  async getSetSequence(@Param('tryout_id') tryoutId: string, @Req() req: Request) {
-    return await this.tryoutService.getTryoutSetSequence(
-      tryoutId,
-    );
+  async getSetSequence(
+    @Param('tryout_id') tryoutId: string,
+    @Req() req: Request,
+  ) {
+    return await this.tryoutService.getTryoutSetSequence(tryoutId);
   }
 
   @ApiBearerAuth()
@@ -184,13 +185,15 @@ export class TryoutController {
       data.set_id,
       (req.user as any).userId,
     );
-
   }
 
   @ApiBearerAuth()
   @Get('/:tryout_id')
   @UseGuards(JwtAuthGuard)
-  async getTryoutDetails(@Param('tryout_id') tryout_id: string, @Req() req: Request){
+  async getTryoutDetails(
+    @Param('tryout_id') tryout_id: string,
+    @Req() req: Request,
+  ) {
     // const userId = (req.user as any).userId;
     return await this.tryoutService.getTryoutDetails(tryout_id);
   }

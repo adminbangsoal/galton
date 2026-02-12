@@ -18,6 +18,6 @@ export * from './pdf.schema';
 export * from './timed-questions.schema';
 export * from './tryout-registration.schema';
 export * from './update-modals.schema';
-export * from "./referral.schema"
-export * from './temp-question-subject.schema'
-export * from "./extracted-content.schema"
+export * from './referral.schema';
+export * from './temp-question-subject.schema';
+export * from './extracted-content.schema';

@@ -39,7 +39,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('Latihan Soal')
 @Controller('latihan-soal')
 export default class LatihanSoalController {
-  constructor(private readonly latihanSoalService: LatihanSoalService) { }
+  constructor(private readonly latihanSoalService: LatihanSoalService) {}
   @ApiQuery({ name: 'topic_id', required: false })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)

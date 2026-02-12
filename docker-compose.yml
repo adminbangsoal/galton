@@ -12,7 +12,7 @@ services:
     image: postgres:13.4-alpine
     container_name: newton-postgres
     ports:
-      - 5432:5432
+      - 5433:5432  # Port host:Port container (WAJIB 5433 karena 5432 sudah dipakai)
     environment:
       POSTGRES_PASSWORD: bangsoal2024
       POSTGRES_USER: bangsoal

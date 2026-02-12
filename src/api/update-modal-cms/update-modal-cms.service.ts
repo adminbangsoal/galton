@@ -17,7 +17,7 @@ class UpdateModalCMSService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
-  ) { }
+  ) {}
 
   async createUpdateModal(modalData: CreateUpdateModalDto) {
     const createdUpdateModal = await this.db
@@ -26,8 +26,12 @@ class UpdateModalCMSService {
       .returning();
 
     if (!createdUpdateModal.length) {
-      console.log(`${dayjs().toISOString()}: update-modal-cms - failed to create new: ${modalData}`);
-      throw new BadRequestException(`Failed to create new update modal for what's new feature`);
+      console.log(
+        `${dayjs().toISOString()}: update-modal-cms - failed to create new: ${modalData}`,
+      );
+      throw new BadRequestException(
+        `Failed to create new update modal for what's new feature`,
+      );
     }
 
     return createdUpdateModal[0];
@@ -36,8 +40,9 @@ class UpdateModalCMSService {
   async deleteUpdateModal(id: string) {
     const updateModal = await this.db.query.update_modals.findFirst({
       where: (modal, { eq }) => eq(modal.id, id),
-    })
-    if (!updateModal) throw new NotFoundException(`Update modal not found with id '${id}'`);
+    });
+    if (!updateModal)
+      throw new NotFoundException(`Update modal not found with id '${id}'`);
 
     const deletedUpdateModal = await this.db
       .delete(schema.update_modals)
@@ -45,13 +50,16 @@ class UpdateModalCMSService {
       .returning();
 
     if (!deletedUpdateModal.length) {
-      console.log(`${dayjs().toISOString()}: update-modal-cms - failed to delete with id: '${id}'`);
-      throw new InternalServerErrorException(`Failed to delete update modal for what's new feature`);
+      console.log(
+        `${dayjs().toISOString()}: update-modal-cms - failed to delete with id: '${id}'`,
+      );
+      throw new InternalServerErrorException(
+        `Failed to delete update modal for what's new feature`,
+      );
     }
 
     return deletedUpdateModal[0];
   }
-
 }
 
 export default UpdateModalCMSService;

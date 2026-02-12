@@ -13,41 +13,49 @@ dotenv.config();
 const pg = postgres(process.env.DATABASE_URL);
 
 const db = drizzle(pg, {
-    schema: {
-        tryout_pembahasan,
-        tryout_questions
-    },
+  schema: {
+    tryout_pembahasan,
+    tryout_questions,
+  },
 });
 
-
 const run = async () => {
-    const tryoutPembahasan = await db.select().from(tryout_pembahasan).execute();
+  const tryoutPembahasan = await db.select().from(tryout_pembahasan).execute();
 
-    let counter = 0;
+  let counter = 0;
 
-    for (const pembahasan of tryoutPembahasan) {
-        console.log(`Migrating pembahasan ${counter + 1} of ${tryoutPembahasan.length}`);
+  for (const pembahasan of tryoutPembahasan) {
+    console.log(
+      `Migrating pembahasan ${counter + 1} of ${tryoutPembahasan.length}`,
+    );
 
-        const { content, likeCount, tryoutQuestionId } = pembahasan;
+    const { content, likeCount, tryoutQuestionId } = pembahasan;
 
-        await db.update(tryout_questions).set({
-            explanations: [{
-                content: content,
-                isMedia: false,
-            }],
-            explanationLikeCount: likeCount,
-        }).where(eq(tryout_questions.id, tryoutQuestionId)).execute();
-        counter++;
-    }
+    await db
+      .update(tryout_questions)
+      .set({
+        explanations: [
+          {
+            content: content,
+            isMedia: false,
+          },
+        ],
+        explanationLikeCount: likeCount,
+      })
+      .where(eq(tryout_questions.id, tryoutQuestionId))
+      .execute();
+    counter++;
+  }
+};
 
-}
-
-run().then(() => {
+run()
+  .then(() => {
     console.log('Migration success');
     pg.end();
     process.exit(0);
-}).catch((err) => {
+  })
+  .catch((err) => {
     console.error(err);
     pg.end();
     process.exit(1);
-})
+  });

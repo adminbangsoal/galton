@@ -18,4 +18,3 @@ export const update_modals = pgTable('update_modals', {
   buttonName: varchar('button_name', { length: 20 }),
   buttonUrl: text('button_url'),
 });
-

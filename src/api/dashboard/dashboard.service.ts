@@ -20,7 +20,7 @@ export class DashboardService {
     private userService: UsersService,
     private s3Service: S3Service,
     private latihanSoalService: LatihanSoalService,
-  ) { }
+  ) {}
 
   async getDashboardHeaders(userId: string) {
     const streakDays = await this.db
@@ -66,16 +66,16 @@ export class DashboardService {
         choiceId: schema.question_attempts.choice_id,
         filledAnswers: schema.question_attempts.filledAnswers,
         questionId: schema.question_attempts.question_id,
-
       })
       .from(schema.question_attempts)
-      .orderBy(schema.question_attempts.question_id, desc(schema.question_attempts.timestamp))
+      .orderBy(
+        schema.question_attempts.question_id,
+        desc(schema.question_attempts.timestamp),
+      )
       .where(eq(schema.question_attempts.user_id, userId))
       .execute();
 
-    const attemptIds = attemptedQuestionsDistinct.map(
-      ({ id }) => id,
-    );
+    const attemptIds = attemptedQuestionsDistinct.map(({ id }) => id);
 
     const totalQuestions = await this.db
       .select({
@@ -107,14 +107,16 @@ export class DashboardService {
       ({ questionId }) => questionId,
     );
 
-    const questions = await this.db.select({
-      id: schema.questions.id,
-      options: schema.questions.options,
-      filledAnswer: schema.questions.filledAnswer,
-      type: schema.questions.type
-    }).from(schema.questions).where(
-      inArray(schema.questions.id, questionIds),
-    ).execute();
+    const questions = await this.db
+      .select({
+        id: schema.questions.id,
+        options: schema.questions.options,
+        filledAnswer: schema.questions.filledAnswer,
+        type: schema.questions.type,
+      })
+      .from(schema.questions)
+      .where(inArray(schema.questions.id, questionIds))
+      .execute();
 
     for (let i = 0; attemptedQuestionsDistinct.length > i; i++) {
       const attemptedQuestion = attemptedQuestionsDistinct[i];
@@ -124,15 +126,18 @@ export class DashboardService {
       );
 
       // check if its correct answer
-      if (this.latihanSoalService.isAnswerCorrect({
-        type: question.type,
-        filledAnswer: question.filledAnswer,
-        options: question.options,
-      } as Question, (attemptedQuestion.choiceId || attemptedQuestion.filledAnswers))) {
-
+      if (
+        this.latihanSoalService.isAnswerCorrect(
+          {
+            type: question.type,
+            filledAnswer: question.filledAnswer,
+            options: question.options,
+          } as Question,
+          attemptedQuestion.choiceId || attemptedQuestion.filledAnswers,
+        )
+      ) {
         correctAnswers++;
       }
-
     }
     // console.log(se, se.size)
 
@@ -141,16 +146,14 @@ export class DashboardService {
       finished: {
         done: totalAttemptedQuestions,
         total: totalQuestionsCount,
-        percentage: Number((
-          (totalAttemptedQuestions / totalQuestionsCount) *
-          100
-        ).toFixed(2)),
+        percentage: Number(
+          ((totalAttemptedQuestions / totalQuestionsCount) * 100).toFixed(2),
+        ),
       },
       accuracy: {
-        percentage: Number((
-          (correctAnswers / attemptIds.length) *
-          100
-        ).toFixed(2)),
+        percentage: Number(
+          ((correctAnswers / attemptIds.length) * 100).toFixed(2),
+        ),
         correct_answers: correctAnswers,
         total_attempted_question: attemptIds.length,
       },
@@ -158,7 +161,7 @@ export class DashboardService {
   }
 
   async getDashboard(userId: string) {
-    let subjects = [];
+    const subjects = [];
     const subjectsQuery = await this.db
       .select({
         subject: schema.subjects.name,
@@ -207,17 +210,14 @@ export class DashboardService {
         topics: [],
         icon: map[key].icon,
         total_correct_answer: 0,
-        slug: map[key].slug
+        slug: map[key].slug,
       };
     });
 
     const topicMapIndex = {};
     const subjectMapIndex = {};
 
-
-
     for (let i = 0; i < mappedTopics.length; i++) {
-
       const topic = mappedTopics[i];
 
       subjectMapIndex[topic.subject_id] = i;
@@ -249,13 +249,21 @@ export class DashboardService {
         topicId: schema.topics.id,
       })
       .from(schema.question_attempts)
-      .orderBy(schema.question_attempts.question_id, desc(schema.question_attempts.timestamp))
-      .leftJoin(schema.questions, eq(schema.questions.id, schema.question_attempts.question_id))
+      .orderBy(
+        schema.question_attempts.question_id,
+        desc(schema.question_attempts.timestamp),
+      )
+      .leftJoin(
+        schema.questions,
+        eq(schema.questions.id, schema.question_attempts.question_id),
+      )
       .leftJoin(schema.topics, eq(schema.topics.id, schema.questions.topic_id))
-      .leftJoin(schema.subjects, eq(schema.subjects.id, schema.topics.subject_id))
+      .leftJoin(
+        schema.subjects,
+        eq(schema.subjects.id, schema.topics.subject_id),
+      )
       .where(eq(schema.question_attempts.user_id, userId))
       .execute();
-
 
     if (attemptedQuestionsDistinct.length === 0) {
       // sort by topic array length
@@ -265,31 +273,36 @@ export class DashboardService {
       return mappedTopics;
     }
 
-
     for (let i = 0; i < attemptedQuestionsDistinct.length; i++) {
       const attempt = attemptedQuestionsDistinct[i];
 
-      if (this.latihanSoalService.isAnswerCorrect({
-        type: attempt.questionType,
-        filledAnswer: attempt.filledAnswers,
-        options: attempt.options,
-      } as Question, (attempt.choiceId || attempt.filledAnswers))) {
+      if (
+        this.latihanSoalService.isAnswerCorrect(
+          {
+            type: attempt.questionType,
+            filledAnswer: attempt.filledAnswers,
+            options: attempt.options,
+          } as Question,
+          attempt.choiceId || attempt.filledAnswers,
+        )
+      ) {
         const subjectIndex = subjectMapIndex[attempt.subject];
         const topicIndex = topicMapIndex[attempt.topic];
-        if (subjectIndex !== undefined && topicIndex !== undefined && mappedTopics[subjectIndex]?.topics[topicIndex]?.correct !== undefined) {
+        if (
+          subjectIndex !== undefined &&
+          topicIndex !== undefined &&
+          mappedTopics[subjectIndex]?.topics[topicIndex]?.correct !== undefined
+        ) {
           mappedTopics[subjectIndex].topics[topicIndex].correct += 1;
         } else {
           this.logger.error(
             `Subject or topic index not found for ${attempt.subject} ${attempt.topic} for user ${userId}`,
-          )
+          );
         }
-
       } else {
         continue;
       }
-
     }
-
 
     for (let i = 0; i < mappedTopics.length; i++) {
       const mappedTopic = mappedTopics[i];
@@ -396,24 +409,24 @@ export class DashboardService {
         major: 'Sekolah Teknik Elektro dan Informatika',
         university: 'Institut Teknologi Bandung',
         rank: 1,
-        total_rank: 100
+        total_rank: 100,
       },
       {
         major: 'Sistem Informasi',
         university: 'Universitas Indonesia',
         rank: 2,
-        total_rank: 200
+        total_rank: 200,
       },
       {
-        major: "Ilmu Komputer",
+        major: 'Ilmu Komputer',
         university: 'Universitas Indonesia',
         rank: 3,
-        total_rank: 300
-      }
-    ]
+        total_rank: 300,
+      },
+    ];
   }
 
-  async getTryoutDashboard(userId: string){
+  async getTryoutDashboard(userId: string) {
     return {
       average_score: 650,
       max_score: 780,
@@ -424,15 +437,16 @@ export class DashboardService {
           tryout_id: 'uuid',
           rank: 1234,
           tryout_name: 'Tryout Pro 1',
-          tryout_group: 'UTBK'
+          tryout_group: 'UTBK',
         },
         {
           id: 'uuid',
           tryout_id: 'uuid',
           rank: 1233,
           tryout_name: 'Tryout Pro 2',
-          tryout_group: 'UTBK'
-        }
-      ]
-    }}
+          tryout_group: 'UTBK',
+        },
+      ],
+    };
+  }
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { TuringGuard } from 'src/authentication/guard/turing.guard';
 import LatihanSoalCmsService from './latihan-soal-cms.service';
 import { UpdateLatihanSoalDTO } from '../latihan-soal/latihan-soal.dto';
@@ -47,7 +55,7 @@ export default class LatihanSoalCmsController {
   }
 
   @Get('questions/statistics/:question_id')
-  async getQuestionStatistics(@Param('question_id') questionId: string) { 
+  async getQuestionStatistics(@Param('question_id') questionId: string) {
     return this.latihanSoalCmsService.getQuestionStatistics(questionId);
   }
 

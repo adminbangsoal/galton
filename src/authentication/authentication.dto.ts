@@ -1,27 +1,73 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches } from 'class-validator';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
-export class AuthDto {
+export class RegisterDto {
   @ApiProperty({
-    example: '+628119950216',
+    example: 'user@example.com',
   })
-  @Matches(/^(\+62)[\s-]?(\d{9,16})$/, {
-    message: 'Phone number is not valid',
-  })
-  phone_number: string;
+  @IsEmail()
+  email: string;
 
   @ApiProperty({
-    example: '123456',
+    example: 'password123',
   })
   @IsString()
-  otp: string;
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  password: string;
 }
 
+export class LoginDto {
+  @ApiProperty({
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    example: 'password123',
+  })
+  @IsString()
+  password: string;
+}
+
+export class GoogleSignInDto {
+  @ApiProperty({
+    example: 'firebase-id-token-here',
+    description: 'Firebase ID token from frontend',
+  })
+  @IsString()
+  idToken: string;
+}
+
+export class ForgotPasswordDto {
+  @ApiProperty({
+    example: 'user@example.com',
+  })
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({
+    example: 'reset-token-here',
+  })
+  @IsString()
+  token: string;
+
+  @ApiProperty({
+    example: 'newpassword123',
+  })
+  @IsString()
+  @MinLength(6, { message: 'Password must be at least 6 characters' })
+  password: string;
+}
+
+// Legacy DTOs - kept for backward compatibility but deprecated
 export class AuthEmailDto {
   @ApiProperty({
     example: 'izzuddinumar13@gmail.com',
   })
-  @IsString()
+  @IsEmail()
   email: string;
 
   @ApiProperty({
@@ -29,58 +75,4 @@ export class AuthEmailDto {
   })
   @IsString()
   password: string;
-}
-
-export class PasswordLoginDto {
-  @ApiProperty({
-    example: '+628119950216',
-  })
-  @Matches(/^(\+62)[\s-]?(\d{9,16})$/, {
-    message: 'Phone number is not valid',
-  })
-  phone_number: string;
-
-  @ApiProperty({
-    example: 'password',
-  })
-  @IsString()
-  password: string;
-}
-
-export class SendOtpEmailDto {
-  @ApiProperty({
-    example: 'izzuddinumar13@gmail.com'
-  })
-  @IsEmail()
-  email: string;
-}
-
-export class SendOtpDto {
-  @ApiProperty({
-    example: '+628119950216',
-  })
-  @Matches(/^(\+62)[\s-]?(\d{9,16})$/, {
-    message: 'Phone number is not valid',
-  })
-  phone_number: string;
-}
-
-export class VerifyOtpDto {
-  phone_number: string;
-  otp: string;
-}
-
-export class VerifyMailOtpDto {
-  @ApiProperty({
-    example: '123456',
-  })
-  @IsString()
-  otp: string;
-
-
-  @ApiProperty({
-    example: 'izzuddinumar13@gmail.com',
-  })
-  @IsString()
-  email: string;
 }

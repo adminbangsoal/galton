@@ -5,6 +5,7 @@ import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import SESModule from 'src/ses/ses.module';
+import { FirebaseModule } from 'src/database/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import SESModule from 'src/ses/ses.module';
       signOptions: { expiresIn: '60000s' },
     }),
     SESModule,
+    FirebaseModule,
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService, ...drizzleProvider],

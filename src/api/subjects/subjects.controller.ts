@@ -16,7 +16,7 @@ export class SubjectsController {
 
     this.logger.log('controller successfully got all subjects');
 
-    return subjects
+    return subjects;
   }
 
   @Get('/slug/:slug')
@@ -27,7 +27,7 @@ export class SubjectsController {
 
     this.logger.log(`controller successfully got subject by slug: ${slug}`);
 
-    return subject
+    return subject;
   }
 
   @Get('/topics')

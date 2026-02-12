@@ -74,22 +74,24 @@ export class S3Service {
   }
 
   getObjectKeyFromUrl(
-    url: string = "",
+    url: string = '',
     bucket: string = this.defaultBucket,
   ): string | null {
     if (!url) return null;
-    
+
     let key = url.split(
       `https://${bucket}.s3-${this.region}.amazonaws.com/`, // is used by new uploaded object to s3 from this.uploadFile method
     )[1];
     if (key) return key;
-    
+
     key = url.split(
       `https://${bucket}.s3.${this.region}.amazonaws.com/`, // is used by the default value of users.profile_img schema
     )[1];
     if (key) return key;
 
-    console.log(`${new Date().toISOString()}: failed to get object key from s3 url '${url}'`);
+    console.log(
+      `${new Date().toISOString()}: failed to get object key from s3 url '${url}'`,
+    );
 
     return null;
   }

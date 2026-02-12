@@ -8,7 +8,6 @@ export enum BangCatatanTipeEnum {
   TUGAS = 'tugas',
   UJIAN = 'ujian',
   LAINNYA = 'lainnya',
-
 }
 
 export enum BangCatatanThemeEnum {
@@ -30,5 +29,4 @@ export enum BangCatatanThemeEnum {
   ROSE = 'rose',
   PINK = 'pink',
   FUCHSIA = 'fuchsia',
-
 }

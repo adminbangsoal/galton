@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 interface MathpixResponse {
   data: any;
@@ -8,57 +8,56 @@ interface MathpixResponse {
   version: string;
 }
 
-type choices = "A" | "B" | "C" | "D";
+type choices = 'A' | 'B' | 'C' | 'D';
 
 const generateTextMathpix = async (src: string) => {
   const { data } = await axios.post(
-    "https://api.mathpix.com/v3/text",
+    'https://api.mathpix.com/v3/text',
     {
       src: src,
-      formats: ["text", "data", "html", "latex_styled"],
+      formats: ['text', 'data', 'html', 'latex_styled'],
     },
     {
       headers: {
         app_id: process.env.MATHPIX_APP_ID,
         app_key: process.env.MATHPIX_APP_KEY,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    }
+    },
   );
   return data as MathpixResponse;
 };
-
 
 const scanImageUrlService = async (imageUrl: string) => {
   imageUrl = getGDriveImageUrl(imageUrl);
   try {
     const result = await generateTextMathpix(imageUrl);
     if (!result.text) {
-      console.warn("Error in scanning image: ", imageUrl)
-      console.warn((result as any).error || "No text found");
-      return "";
+      console.warn('Error in scanning image: ', imageUrl);
+      console.warn((result as any).error || 'No text found');
+      return '';
     }
 
-    result.text = result.text.replace("(C)", "&#40;C&#41;");
-    result.text = result.text.replace("(c)", "&#40;c&#41;");
+    result.text = result.text.replace('(C)', '&#40;C&#41;');
+    result.text = result.text.replace('(c)', '&#40;c&#41;');
 
     return result.text;
   } catch (error) {
-    console.warn("Error in scanning image: ", imageUrl)
-    console.warn("Error: ", error);
-    return "";
+    console.warn('Error in scanning image: ', imageUrl);
+    console.warn('Error: ', error);
+    return '';
   }
-}
+};
 
 const getGDriveImageUrl = (imageUrl: string) => {
-  if (imageUrl.includes("drive.google")) {
-    const id = imageUrl.split("/d/")?.[1]?.split("/")[0];
+  if (imageUrl.includes('drive.google')) {
+    const id = imageUrl.split('/d/')?.[1]?.split('/')[0];
     imageUrl = `https://drive.google.com/uc?export=download&id=${id}`;
     return imageUrl;
   }
 
   return imageUrl;
-}
+};
 
 const extractChoices = (text: string) => {
   const patterns = {
@@ -76,17 +75,17 @@ const extractChoices = (text: string) => {
     E?: string;
   };
 
-  for (let key in patterns) {
+  for (const key in patterns) {
     const match = text.match(patterns[key as choices]);
     if (match) result[key as choices] = match[1];
   }
 
   return result;
-}
+};
 
 export {
   generateTextMathpix,
   scanImageUrlService,
   getGDriveImageUrl,
-  extractChoices
-}
+  extractChoices,
+};

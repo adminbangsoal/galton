@@ -183,7 +183,6 @@ export const tryout_questions = pgTable('tryout_questions', {
   answers: jsonb('answers').$type<string[]>(),
 });
 
-
 export const tryout_question_attempts = pgTable(
   'tryout_question_attempts',
   {

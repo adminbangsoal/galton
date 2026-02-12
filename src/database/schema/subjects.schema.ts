@@ -17,12 +17,12 @@ export const subjects = pgTable('subjects', {
     length: 250,
   }),
   slug: varchar('slug', {
-    length: 50
+    length: 50,
   }).unique(),
   illustration: text('background_illustration'),
   year: varchar('year', {
-    length: 4
-  })
+    length: 4,
+  }),
 });
 
 export type Subjects = typeof subjects.$inferSelect;

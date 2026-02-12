@@ -1,12 +1,12 @@
-import { Module } from "@nestjs/common";
-import { drizzleProvider } from "src/database/drizzle/drizzle.provider";
-import ReferralService from "./referral.service";
-import ReferralController from "./referral.controller";
+import { Module } from '@nestjs/common';
+import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
+import ReferralService from './referral.service';
+import ReferralController from './referral.controller';
 
 @Module({
-    imports: [],
-    controllers: [ReferralController],
-    providers: [...drizzleProvider, ReferralService],
-    exports: [ReferralService]
+  imports: [],
+  controllers: [ReferralController],
+  providers: [...drizzleProvider, ReferralService],
+  exports: [ReferralService],
 })
-export default class ReferralModule { }
+export default class ReferralModule {}

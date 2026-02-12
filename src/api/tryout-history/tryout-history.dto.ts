@@ -20,7 +20,7 @@ export class AddQuestionNoteDto {
 
 export class JobDto {
   @ApiProperty({
-    example: '34abb710-c78d-47a7-b74a-9ad70705f084'
+    example: '34abb710-c78d-47a7-b74a-9ad70705f084',
   })
   @IsString()
   tryout_id: string;

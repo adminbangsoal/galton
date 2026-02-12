@@ -10,22 +10,39 @@ import {
   UpdateTryoutDto,
   UpdateTryoutQuestionDto,
 } from './tryout-cms.dto';
-import { and, eq, not, inArray, sql, asc, desc, isNotNull, ne } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  not,
+  inArray,
+  sql,
+  asc,
+  desc,
+  isNotNull,
+  ne,
+} from 'drizzle-orm';
 import { v4 } from 'uuid';
 import { TRYOUT_SUBJECT_TIME_MAPPING } from './tryout-cms.data';
 import * as dayjs from 'dayjs';
 import TryoutWorkerService from 'src/workers/tryout/tryout.service';
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { OnModuleInit } from '@nestjs/common';
 
 @Injectable()
-class TryoutCMSService {
+class TryoutCMSService implements OnModuleInit {
+  private supabase: SupabaseClient;
+
+  onModuleInit() {
+    this.supabase = createClient(
+      process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+      process.env.SUPABASE_KEY || 'placeholder-key',
+    );
+  }
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
     private tryoutWorkerService: TryoutWorkerService,
-  ) { }
+  ) {}
 
   async createTryout(data: CreateTryoutDto) {
     const tryout = await this.db
@@ -68,7 +85,9 @@ class TryoutCMSService {
       throw new Error('Tryout set with subject already exists');
     }
 
-    const duration = (tryoutSubject.questionsLimit * (tryoutSubject.questionDuration || 60)) || 10 * 60;
+    const duration =
+      tryoutSubject.questionsLimit * (tryoutSubject.questionDuration || 60) ||
+      10 * 60;
 
     if (!duration) {
       throw new Error('Tryout subject not found in time mapping');
@@ -137,7 +156,10 @@ class TryoutCMSService {
         resetOrder = true;
         break;
       }
-      if (i < tryoutSets.length - 1 && tryoutSets[i].nextSet !== tryoutSets[i + 1].id) {
+      if (
+        i < tryoutSets.length - 1 &&
+        tryoutSets[i].nextSet !== tryoutSets[i + 1].id
+      ) {
         resetOrder = true;
         break;
       }
@@ -159,7 +181,8 @@ class TryoutCMSService {
       }
       tryoutSets.forEach((set, index) => {
         set.order = index + 1;
-        set.nextSet = index === tryoutSets.length - 1 ? null : tryoutSets[index + 1].id;
+        set.nextSet =
+          index === tryoutSets.length - 1 ? null : tryoutSets[index + 1].id;
       });
 
       const firstSet = tryoutSets[0];
@@ -224,10 +247,10 @@ class TryoutCMSService {
     // $$ LANGUAGE plpgsql;
     // ```
 
-    const res = await supabase.rpc('swap_tryout_sets_order', {
+    const res = await this.supabase.rpc('swap_tryout_sets_order', {
       id1: tryoutSetId1,
       id2: tryoutSetId2,
-    })
+    });
 
     return true;
   }
@@ -256,18 +279,18 @@ class TryoutCMSService {
 
   async getAllTryout(labels: string) {
     const selectedLabels = labels ? labels.split(',') : null;
-    const tryout = await (labels ? (
-      this.db
-        .select()
-        .from(schema.tryouts)
-        .where(labels !== 'all' && inArray(schema.tryouts.label, selectedLabels))
-        .orderBy(desc(schema.tryouts.createdAt))
-    ) : (
-      this.db
-        .select()
-        .from(schema.tryouts)
-        .orderBy(desc(schema.tryouts.createdAt))
-    ))
+    const tryout = await (labels
+      ? this.db
+          .select()
+          .from(schema.tryouts)
+          .where(
+            labels !== 'all' && inArray(schema.tryouts.label, selectedLabels),
+          )
+          .orderBy(desc(schema.tryouts.createdAt))
+      : this.db
+          .select()
+          .from(schema.tryouts)
+          .orderBy(desc(schema.tryouts.createdAt)));
 
     if (!tryout.length) {
       return [];
@@ -342,7 +365,9 @@ class TryoutCMSService {
         label: schema.tryouts.label,
       })
       .from(schema.tryouts)
-      .where(and(isNotNull(schema.tryouts.label), not(eq(schema.tryouts.label, ''))));
+      .where(
+        and(isNotNull(schema.tryouts.label), not(eq(schema.tryouts.label, ''))),
+      );
 
     const res = labels.map((l) => l.label);
 
@@ -355,7 +380,7 @@ class TryoutCMSService {
         id: true,
         name: true,
         questionsLimit: true,
-        questionDuration: true
+        questionDuration: true,
       },
     });
 
@@ -626,13 +651,13 @@ class TryoutCMSService {
       .update(schema.tryout_questions)
       .set({
         content: updateSoalTryoutDto.content ?? tryoutQuestion.content,
-        contentImage: updateSoalTryoutDto.content_img?? '',
-        isTextAnswer:
-          updateSoalTryoutDto.is_mcq ?? tryoutQuestion.isTextAnswer,
+        contentImage: updateSoalTryoutDto.content_img ?? '',
+        isTextAnswer: updateSoalTryoutDto.is_mcq ?? tryoutQuestion.isTextAnswer,
         options: updateSoalTryoutDto.options ?? tryoutQuestion.options,
         type: updateSoalTryoutDto.type ?? tryoutQuestion.type,
         answers: updateSoalTryoutDto.answers ?? tryoutQuestion.answers,
-        explanations: updateSoalTryoutDto.explanations ?? tryoutQuestion.explanations,
+        explanations:
+          updateSoalTryoutDto.explanations ?? tryoutQuestion.explanations,
       })
       .where(eq(schema.tryout_questions.id, tryoutQuestionId))
       .returning()
@@ -688,7 +713,7 @@ class TryoutCMSService {
 
     const res = tryoutQuestion[0];
 
-    if(!res) {
+    if (!res) {
       throw new NotFoundException('Tryout question not found');
     }
 
@@ -700,7 +725,7 @@ class TryoutCMSService {
       throw new NotFoundException('Tryout question not found');
     }
 
-    return res
+    return res;
   }
 
   async getTryoutSetDetails(tryoutSetId: string) {
@@ -878,10 +903,9 @@ class TryoutCMSService {
         }
       }
       return newTryout[0];
-    })
+    });
 
     return newTryout;
-
   }
 
   async deleteTryout(tryoutId: string) {
@@ -896,7 +920,7 @@ class TryoutCMSService {
     // check if tryout has been attempted
     const tryoutAttempts = await this.db.query.tryout_attempts.findMany({
       where: eq(schema.tryout_attempts.tryoutId, tryoutId),
-    })
+    });
 
     if (tryoutAttempts.length) {
       throw new Error('Tryout has been attempted');
@@ -906,7 +930,6 @@ class TryoutCMSService {
     const tryoutSets = await this.db.query.tryout_sets.findMany({
       where: eq(schema.tryout_sets.tryoutId, tryoutId),
     });
-
 
     await this.db
       .update(schema.tryouts)
@@ -934,61 +957,74 @@ class TryoutCMSService {
         // remove all pembahasan
         const pembahasanIds = tryoutQuestions.map((q) => q.id);
 
-        await this.db.delete(schema.tryout_pembahasan).where(inArray(schema.tryout_pembahasan.tryoutQuestionId, pembahasanIds));
+        await this.db
+          .delete(schema.tryout_pembahasan)
+          .where(
+            inArray(schema.tryout_pembahasan.tryoutQuestionId, pembahasanIds),
+          );
 
         // remove all questions
-        await this.db.delete(schema.tryout_questions).where(eq(schema.tryout_questions.tryoutSetId, tryoutSets[i].id));
+        await this.db
+          .delete(schema.tryout_questions)
+          .where(eq(schema.tryout_questions.tryoutSetId, tryoutSets[i].id));
       }
 
       // remove the set
-      await this.db.delete(schema.tryout_sets).where(eq(schema.tryout_sets.id, tryoutSets[i].id));
-
+      await this.db
+        .delete(schema.tryout_sets)
+        .where(eq(schema.tryout_sets.id, tryoutSets[i].id));
     }
 
     await this.db.delete(schema.tryouts).where(eq(schema.tryouts.id, tryoutId));
-
 
     return true;
   }
 
   async generateTryoutSetPDF(setId: string) {
-    const tryoutSet = await this.db.select({
-      id: schema.tryout_sets.id,
-      subject_name: schema.tryout_subjects.name,
-      question_count: schema.tryout_subjects.questionsLimit,
-      tryout_title: schema.tryouts.name,
-    }).from(schema.tryout_sets)
-      .leftJoin(schema.tryout_subjects, eq(schema.tryout_sets.subjectId, schema.tryout_subjects.id))
-      .leftJoin(schema.tryouts, eq(schema.tryout_sets.tryoutId, schema.tryouts.id))
-      .where(eq(schema.tryout_sets.id, setId)).execute();
+    const tryoutSet = await this.db
+      .select({
+        id: schema.tryout_sets.id,
+        subject_name: schema.tryout_subjects.name,
+        question_count: schema.tryout_subjects.questionsLimit,
+        tryout_title: schema.tryouts.name,
+      })
+      .from(schema.tryout_sets)
+      .leftJoin(
+        schema.tryout_subjects,
+        eq(schema.tryout_sets.subjectId, schema.tryout_subjects.id),
+      )
+      .leftJoin(
+        schema.tryouts,
+        eq(schema.tryout_sets.tryoutId, schema.tryouts.id),
+      )
+      .where(eq(schema.tryout_sets.id, setId))
+      .execute();
 
     if (!tryoutSet) {
       throw new NotFoundException('Tryout set not found');
     }
 
-
     const tryoutQuestions = await this.db.query.tryout_questions.findMany({
-      where: (eq(schema.tryout_questions.tryoutSetId, setId)),
+      where: eq(schema.tryout_questions.tryoutSetId, setId),
       orderBy: asc(schema.tryout_questions.createdAt),
       columns: {
         content: true,
         contentImage: true,
         source: true,
-        options: true
-      }
-    })
+        options: true,
+      },
+    });
 
     if (!tryoutQuestions.length) {
       throw new NotFoundException('No questions found');
     }
 
-
     const res = {
       set: tryoutSet[0],
       questions: tryoutQuestions,
-    }
+    };
 
-    return res
+    return res;
   }
 }
 

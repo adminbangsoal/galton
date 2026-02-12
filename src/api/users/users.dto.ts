@@ -10,7 +10,7 @@ export class OnboardingDto {
   full_name: string;
 
   @ApiProperty({
-    example: 'umar4321'
+    example: 'umar4321',
   })
   @IsString()
   @IsOptional()
@@ -102,7 +102,6 @@ export class OnboardingDto {
 }
 
 export class UpdateUserProfileDto extends OnboardingDto {
-
   @ApiProperty({
     example: 's3-url',
   })

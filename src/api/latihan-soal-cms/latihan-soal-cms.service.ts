@@ -7,12 +7,11 @@ import { UpdateLatihanSoalDTO } from '../latihan-soal/latihan-soal.dto';
 
 @Injectable()
 export default class LatihanSoalCmsService {
-  private readonly logger = new Logger(LatihanSoalCmsService.name)
+  private readonly logger = new Logger(LatihanSoalCmsService.name);
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
-
-  ) { }
+  ) {}
 
   async getQuestions(page: number, limit: number) {
     const offset: number = (page - 1) * limit;
@@ -40,7 +39,12 @@ export default class LatihanSoalCmsService {
     const questions = await this.db
       .select()
       .from(schema.question_feedbacks)
-      .where(and(ne(schema.question_feedbacks.feedback, ''), eq(schema.question_feedbacks.is_like, false)))
+      .where(
+        and(
+          ne(schema.question_feedbacks.feedback, ''),
+          eq(schema.question_feedbacks.is_like, false),
+        ),
+      )
       .execute();
 
     return questions;
@@ -66,7 +70,7 @@ export default class LatihanSoalCmsService {
     const questionIds = questions.map((question) => question.id);
 
     if (!questionIds.length) {
-      return []
+      return [];
     }
 
     const feedbacks = await this.db
@@ -95,7 +99,12 @@ export default class LatihanSoalCmsService {
         eq(schema.question_feedbacks.question_id, schema.questions.id),
       )
       .leftJoin(schema.topics, eq(schema.questions.topic_id, schema.topics.id))
-      .where(and(ne(schema.question_feedbacks.feedback, ''), eq(schema.question_feedbacks.is_like, false)))
+      .where(
+        and(
+          ne(schema.question_feedbacks.feedback, ''),
+          eq(schema.question_feedbacks.is_like, false),
+        ),
+      )
       .execute();
 
     return topicsFeedbacked;
@@ -167,7 +176,7 @@ export default class LatihanSoalCmsService {
 
     const q = await this.db.query.questions.findFirst({
       where: eq(schema.questions.id, id),
-    })
+    });
 
     if (!q) {
       const insertQuestion = await this.db
@@ -181,7 +190,7 @@ export default class LatihanSoalCmsService {
         .execute();
       return insertQuestion;
     } else {
-      delete value.id
+      delete value.id;
       const updatedQuestion = await this.db
         .update(schema.questions)
         .set(value)
@@ -198,56 +207,63 @@ export default class LatihanSoalCmsService {
       like_count: 0,
       correct_count: 0,
       incorrect_count: 0,
-      dislike_count: 0
-    }
-
+      dislike_count: 0,
+    };
 
     const answeredCount = await this.db.query.question_attempts.findMany({
       where: eq(schema.question_attempts.question_id, questionId),
       columns: {
         choice_id: true,
-      }
-    })
+      },
+    });
 
-    res.answered_count = answeredCount.length
+    res.answered_count = answeredCount.length;
 
     const feedbackCount = await this.db.query.question_feedbacks.findMany({
       where: eq(schema.question_feedbacks.question_id, questionId),
       columns: {
         is_like: true,
-      }
-    })
+      },
+    });
 
-    res.like_count = feedbackCount.filter((item) => item.is_like === true).length
-    res.dislike_count = feedbackCount.filter((item) => item.is_like === false).length
+    res.like_count = feedbackCount.filter(
+      (item) => item.is_like === true,
+    ).length;
+    res.dislike_count = feedbackCount.filter(
+      (item) => item.is_like === false,
+    ).length;
 
     const question = await this.db.query.options.findFirst({
       where: eq(schema.options.question_id, questionId),
       columns: {
-        options: true
-      }
-    })
+        options: true,
+      },
+    });
 
     if (!question) {
-      throw new NotFoundException('Question not found')
+      throw new NotFoundException('Question not found');
     }
 
     if (typeof question.options === 'string') {
-      question.options = JSON.parse(question.options)
+      question.options = JSON.parse(question.options);
     }
 
-    const correctChoiceId = question.options.find((item) => item.is_true === true)?.id
+    const correctChoiceId = question.options.find(
+      (item) => item.is_true === true,
+    )?.id;
 
     if (!correctChoiceId) {
-      return res
+      return res;
     }
 
-    const correctCount = answeredCount.filter((item) => item.choice_id === correctChoiceId)
+    const correctCount = answeredCount.filter(
+      (item) => item.choice_id === correctChoiceId,
+    );
 
-    res.correct_count = correctCount.length
-    res.incorrect_count = res.answered_count - res.correct_count
+    res.correct_count = correctCount.length;
+    res.incorrect_count = res.answered_count - res.correct_count;
 
-    return res
+    return res;
   }
   async updateQuestionStatus(questionId: string, body: { status: boolean }) {
     const { status } = body;

@@ -1,13 +1,16 @@
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { initializeApp, cert, App } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
+import { getAuth, Auth } from 'firebase-admin/auth';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class FirebaseService implements OnModuleInit {
   private firebaseApp: App;
   private db: Firestore;
+  private auth: Auth;
   @InjectRedis() private readonly redis: Redis;
 
   constructor(private configService: ConfigService) {}
@@ -25,10 +28,24 @@ export class FirebaseService implements OnModuleInit {
     });
 
     this.db = getFirestore(this.firebaseApp);
+    this.auth = getAuth(this.firebaseApp);
   }
 
   getDb(): Firestore {
     return this.db;
+  }
+
+  getAuth(): Auth {
+    return this.auth;
+  }
+
+  async verifyIdToken(idToken: string) {
+    try {
+      const decodedToken = await this.auth.verifyIdToken(idToken);
+      return decodedToken;
+    } catch (error) {
+      throw new Error(`Invalid Firebase ID token: ${error.message}`);
+    }
   }
 
   async addUserHistoryPoint(userId: string, point: number, activity: string) {

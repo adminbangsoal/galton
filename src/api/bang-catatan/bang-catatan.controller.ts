@@ -39,11 +39,11 @@ class BangCatatanController {
   @Get('')
   async getCatatanTimeline(
     @Req() req: Request,
-    @Query() pageOptionsDto: GetCatatanTimelineDTO
+    @Query() pageOptionsDto: GetCatatanTimelineDTO,
   ) {
     const userId = (req.user as any).userId as string;
     return await this.bangCatatanService.getCatatanTimeline(
-      pageOptionsDto, 
+      pageOptionsDto,
       userId,
     );
   }
@@ -99,7 +99,7 @@ class BangCatatanController {
       key: res.key,
     };
   }
-  
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('/:id')
@@ -149,12 +149,16 @@ class BangCatatanController {
   @UseGuards(JwtAuthGuard)
   @Post('/:id/report')
   async reportCatatan(
-    @Param('id') id: string, 
+    @Param('id') id: string,
     @Req() req: Request,
     @Body() reportCatatan: ReportCatatanDTO,
   ) {
     const userId = (req.user as any).userId as string;
-    return await this.bangCatatanService.reportCatatan(id, userId, reportCatatan);
+    return await this.bangCatatanService.reportCatatan(
+      id,
+      userId,
+      reportCatatan,
+    );
   }
 }
 

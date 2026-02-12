@@ -11,26 +11,39 @@ export class SubjectsService {
   constructor(
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
-  ) { }
+  ) {}
 
   async getSubjectBySlug(slug: string) {
     this.logger.log(`service starts getting subject by slug: ${slug}`);
 
-    const subject = await this.db.select().from(schema.subjects).where(and(eq(schema.subjects.slug, slug), not(eq(schema.subjects.name, 'UNDECIDED')))).execute();
+    const subject = await this.db
+      .select()
+      .from(schema.subjects)
+      .where(
+        and(
+          eq(schema.subjects.slug, slug),
+          not(eq(schema.subjects.name, 'UNDECIDED')),
+        ),
+      )
+      .execute();
 
     if (!subject.length) {
       this.logger.warn(`subject with slug ${slug} not found`);
 
-      return null
+      return null;
     }
     this.logger.log(`service successfully got subject by slug: ${slug}`);
 
-    return subject[0]
+    return subject[0];
   }
 
   async getAllTopics() {
-    const topics = await this.db.select().from(schema.topics).where(not(eq(schema.topics.name, 'UNDECIDED'))).execute();
-    const res = []
+    const topics = await this.db
+      .select()
+      .from(schema.topics)
+      .where(not(eq(schema.topics.name, 'UNDECIDED')))
+      .execute();
+    const res = [];
 
     for (let i = 0; i < topics.length; i++) {
       const topic = topics[i];
@@ -44,9 +57,13 @@ export class SubjectsService {
   }
 
   async getAllSubjects() {
-    const subjects = await this.db.select().from(schema.subjects).where(not(eq(schema.subjects.name, 'UNDECIDED'))).execute();
+    const subjects = await this.db
+      .select()
+      .from(schema.subjects)
+      .where(not(eq(schema.subjects.name, 'UNDECIDED')))
+      .execute();
 
-    const res = []
+    const res = [];
     for (let i = 0; i < subjects.length; i++) {
       const subject = subjects[i];
       const hasQuestions = await this.checkIfSubjectHaveQuestions(subject);
@@ -66,7 +83,7 @@ export class SubjectsService {
       .where(eq(schema.topics.subject_id, subjectId))
       .execute();
 
-    const res = []
+    const res = [];
 
     for (let i = 0; i < topics.length; i++) {
       const topic = topics[i];
@@ -88,7 +105,6 @@ export class SubjectsService {
       .execute();
 
     return questions.length > 0;
-
   }
 
   async checkIfTopicHaveQuestions(topic: schema.Topics) {
@@ -101,5 +117,4 @@ export class SubjectsService {
 
     return questions.length > 0;
   }
-
 }

@@ -12,7 +12,8 @@ import * as schema from 'src/database/schema';
 import { and, eq, sql, asc, gt, desc, or } from 'drizzle-orm';
 import * as dayjs from 'dayjs';
 import { TryoutProgressEnum } from './tryout.enum';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 
 @Injectable()
 class TryoutService {
@@ -22,7 +23,7 @@ class TryoutService {
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
     @InjectRedis() private readonly redis: Redis,
-  ) { }
+  ) {}
 
   async getAllActiveTryouts(
     userId: string,
@@ -74,7 +75,8 @@ class TryoutService {
 
         if (
           dayjs(timeLimit).isBefore(dayjs()) &&
-          tryouts[i].submitted_at === null && tryouts[i].is_window === false
+          tryouts[i].submitted_at === null &&
+          tryouts[i].is_window === false
         ) {
           // update submitted_at the attempt
           const submitted = await this.db
@@ -215,7 +217,7 @@ class TryoutService {
         where: eq(schema.tryouts.id, latestTryoutAttempt[0].tryoutId),
       });
 
-      let nextSet = await this.db.query.tryout_sets.findFirst({
+      const nextSet = await this.db.query.tryout_sets.findFirst({
         where: eq(schema.tryout_sets.id, tryout.firstSetId),
       });
 
@@ -270,8 +272,13 @@ class TryoutService {
         .add(currentSet.duration, 'second')
         .toDate();
 
-      if ((dayjs().isAfter(timeLimit) || dayjs().isAfter(setTimeLimit)) && !tryout.isWindow) {
-        this.logger.log(`Time limit on current set: ${currentSet.id} is exceeded. Submitting the set...`);
+      if (
+        (dayjs().isAfter(timeLimit) || dayjs().isAfter(setTimeLimit)) &&
+        !tryout.isWindow
+      ) {
+        this.logger.log(
+          `Time limit on current set: ${currentSet.id} is exceeded. Submitting the set...`,
+        );
         // update submitted_at the attempt
         await this.db
           .update(schema.tryout_set_attempts)
@@ -318,11 +325,16 @@ class TryoutService {
 
         return res;
       } else {
-        this.logger.log(`Time limit on current set: ${currentSet.id} is not exceeded. Continuing the set...`);
+        this.logger.log(
+          `Time limit on current set: ${currentSet.id} is not exceeded. Continuing the set...`,
+        );
 
         res.current_set = latestSetAttempt;
 
-        res.current_set.end_time = dayjs(latestSetAttempt.startedAt).add(currentSet.duration, 'second')
+        res.current_set.end_time = dayjs(latestSetAttempt.startedAt).add(
+          currentSet.duration,
+          'second',
+        );
 
         res.current_set.duration = currentSet.duration;
 
@@ -1007,7 +1019,9 @@ class TryoutService {
   }
 
   async startTryoutSet(tryoutId: string, userId: string, tryoutSetId: string) {
-    this.logger.log(`Start TryoutSet with id ${tryoutSetId} for user ${userId}`);
+    this.logger.log(
+      `Start TryoutSet with id ${tryoutSetId} for user ${userId}`,
+    );
     // check if tryout exists
     const tryout = await this.db.query.tryouts.findFirst({
       where: eq(schema.tryouts.id, tryoutId),
@@ -1030,7 +1044,8 @@ class TryoutService {
     if (
       dayjs().isAfter(
         dayjs(tryoutAttempt.startedAt).add(totalDuration, 'second'),
-      ) && !tryout.isWindow
+      ) &&
+      !tryout.isWindow
     ) {
       this.logger.error('User has exceeded the tryout time limit');
       throw new BadRequestException('You have exceeded the tryout time limit');
@@ -1061,7 +1076,9 @@ class TryoutService {
     });
 
     if (tryoutSetAttempt) {
-      this.logger.error(`Tryout set attempt already exists, tryoutId: ${tryoutId}, tryoutSetId: ${tryoutSetId}, userId: ${userId}, tryoutAttempt: ${tryoutAttempt}`);
+      this.logger.error(
+        `Tryout set attempt already exists, tryoutId: ${tryoutId}, tryoutSetId: ${tryoutSetId}, userId: ${userId}, tryoutAttempt: ${tryoutAttempt}`,
+      );
 
       if (tryoutAttempt.submittedAt) {
         // get the next set
@@ -1096,7 +1113,9 @@ class TryoutService {
           .returning();
 
         if (!createdSetAttempt.length) {
-          this.logger.error(`Failed to start tryout set with id '${tryoutSetId} and next set id '${nextTryoutSets[0].id}' for user ${userId}`);
+          this.logger.error(
+            `Failed to start tryout set with id '${tryoutSetId} and next set id '${nextTryoutSets[0].id}' for user ${userId}`,
+          );
           throw new Error(
             `Failed to start tryout set with id '${tryoutSetId} and next set id '${nextTryoutSets[0].id}'`,
           );
@@ -1173,7 +1192,9 @@ class TryoutService {
         `Failed to start tryout set with id '${tryoutSetId}'`,
       );
 
-    this.logger.log(`Successfully started TryoutSet with id ${tryoutSetId} for user ${userId}`);
+    this.logger.log(
+      `Successfully started TryoutSet with id ${tryoutSetId} for user ${userId}`,
+    );
 
     return {
       id: createdSetAttempt[0].id,
@@ -1220,7 +1241,11 @@ class TryoutService {
 
     // check if already submitted (submitted_at is not null)
     if (tryoutSetAttempt.submittedAt) {
-      this.logger.error(`Tryout set attempt already submitted, tryoutId: ${tryoutId}, tryoutSetId: ${tryoutSetId}, userId: ${userId}, TryoutState: ${JSON.stringify(await this.getCurrentTryoutState(userId))}`);
+      this.logger.error(
+        `Tryout set attempt already submitted, tryoutId: ${tryoutId}, tryoutSetId: ${tryoutSetId}, userId: ${userId}, TryoutState: ${JSON.stringify(
+          await this.getCurrentTryoutState(userId),
+        )}`,
+      );
       return 'Already submitted';
     }
     // find submitted at value
@@ -1388,10 +1413,12 @@ class TryoutService {
         where: eq(schema.tryouts.id, tryoutId),
         columns: {
           isWindow: true,
-        }
-      })
+        },
+      });
       if (!tryout.isWindow) {
-        this.logger.error(`Failed to change currentQuestion attempt for set ${tryoutSet.id}. User ${userId} has exceeded the set time limit`);
+        this.logger.error(
+          `Failed to change currentQuestion attempt for set ${tryoutSet.id}. User ${userId} has exceeded the set time limit`,
+        );
         throw new BadRequestException(`You have exceeded the time limit`);
       }
     }
@@ -1438,7 +1465,11 @@ class TryoutService {
     const tryout = tryoutsAndAttempts[0].tryouts;
     const tryoutAttempt = tryoutsAndAttempts[0].tryout_attempts;
     if (tryoutAttempt.submittedAt) {
-      this.logger.error(`Tryout attempt already submitted, tryoutId: ${tryoutId}, userId: ${userId}, TryoutState: ${JSON.stringify(await this.getCurrentTryoutState(userId))}`);
+      this.logger.error(
+        `Tryout attempt already submitted, tryoutId: ${tryoutId}, userId: ${userId}, TryoutState: ${JSON.stringify(
+          await this.getCurrentTryoutState(userId),
+        )}`,
+      );
       return 'Already Submitted';
     }
 
@@ -1513,13 +1544,15 @@ class TryoutService {
 
     if (isUserSubscribed) {
       const tryouts = await this.db.query.tryouts.findMany({
-        where: or(gt(schema.tryouts.expiryDate, new Date()), schema.tryouts.isWindow),
+        where: or(
+          gt(schema.tryouts.expiryDate, new Date()),
+          schema.tryouts.isWindow,
+        ),
       });
 
       tryouts.map(({ id }) => {
         res.push(id);
       });
-
     } else {
       const tryouts = await this.db
         .select()
