@@ -113,13 +113,17 @@ class BangCatatanService {
 
     const result = catatan[0];
 
-    const thumbnailKey = this.s3Service.getObjectKeyFromUrl(result.thumbnail_url);
+    const thumbnailKey = this.s3Service.getObjectKeyFromUrl(
+      result.thumbnail_url,
+    );
     if (thumbnailKey) {
       const url = await this.s3Service.getPresignedUrl(thumbnailKey);
       result.thumbnail_url = url;
     }
 
-    const authorPictureKey = this.s3Service.getObjectKeyFromUrl(result.author_picture);
+    const authorPictureKey = this.s3Service.getObjectKeyFromUrl(
+      result.author_picture,
+    );
     if (authorPictureKey) {
       const url = await this.s3Service.getPresignedUrl(authorPictureKey);
       result.author_picture = url;
@@ -150,20 +154,28 @@ class BangCatatanService {
     };
   }
 
-  async getCatatanTimeline(catatanTimelineDTO: GetCatatanTimelineDTO, userId: string) {
+  async getCatatanTimeline(
+    catatanTimelineDTO: GetCatatanTimelineDTO,
+    userId: string,
+  ) {
     const { limit, page } = catatanTimelineDTO;
 
     let is_liked = null;
     if (catatanTimelineDTO.is_liked === 'true') is_liked = true;
     else if (catatanTimelineDTO.is_liked === 'false') is_liked = false;
 
-    const searchQuery = catatanTimelineDTO.query ? `%${catatanTimelineDTO.query.toLowerCase()}%` : null;
-    
-    const userCatatanLikedHistoryRef = this.getCatatanLikedHistoryOfUserDocRef(userId);
-    const userCatatanHistoryDoc = await userCatatanLikedHistoryRef.get();
-    const likedCatatanIds: string[] = userCatatanHistoryDoc.exists ? userCatatanHistoryDoc.data().catatan_ids : [];
+    const searchQuery = catatanTimelineDTO.query
+      ? `%${catatanTimelineDTO.query.toLowerCase()}%`
+      : null;
 
-    let catatanQ = this.db
+    const userCatatanLikedHistoryRef =
+      this.getCatatanLikedHistoryOfUserDocRef(userId);
+    const userCatatanHistoryDoc = await userCatatanLikedHistoryRef.get();
+    const likedCatatanIds: string[] = userCatatanHistoryDoc.exists
+      ? userCatatanHistoryDoc.data().catatan_ids
+      : [];
+
+    const catatanQ = this.db
       .select({
         id: schema.bangCatatan.id,
         thumbnail_url: schema.bangCatatan.thumbnail_url,
@@ -196,38 +208,51 @@ class BangCatatanService {
       .where(({ id, title, author, subject_id, topic_id, note_type }) =>
         // conditional query
         and(
-          is_liked 
-            ? (likedCatatanIds.length 
-              ? inArray(id, likedCatatanIds) 
+          is_liked
+            ? likedCatatanIds.length
+              ? inArray(id, likedCatatanIds)
               : sql`1=0` // won't show anything since user haven't like any catatan (inArray can't accept empty array)
-            ) 
             : undefined,
-          is_liked === false && likedCatatanIds.length ? notInArray(id, likedCatatanIds) : undefined,
-          searchQuery ? or(
-            sql`lower(${title}) like ${searchQuery}`,
-            sql`lower(${author}) like ${searchQuery}`,
-          ) : undefined,
-          catatanTimelineDTO.subject_id ? eq(subject_id, catatanTimelineDTO.subject_id) : undefined,
-          catatanTimelineDTO.topic_id ? eq(topic_id, catatanTimelineDTO.topic_id) : undefined,
-          catatanTimelineDTO.note_type ? eq(note_type, catatanTimelineDTO.note_type) : undefined,
-        )
+          is_liked === false && likedCatatanIds.length
+            ? notInArray(id, likedCatatanIds)
+            : undefined,
+          searchQuery
+            ? or(
+                sql`lower(${title}) like ${searchQuery}`,
+                sql`lower(${author}) like ${searchQuery}`,
+              )
+            : undefined,
+          catatanTimelineDTO.subject_id
+            ? eq(subject_id, catatanTimelineDTO.subject_id)
+            : undefined,
+          catatanTimelineDTO.topic_id
+            ? eq(topic_id, catatanTimelineDTO.topic_id)
+            : undefined,
+          catatanTimelineDTO.note_type
+            ? eq(note_type, catatanTimelineDTO.note_type)
+            : undefined,
+        ),
       )
       .orderBy(
         desc(schema.bangCatatan.like_count),
         desc(schema.bangCatatan.download_count),
-        desc(schema.bangCatatan.created_at)
+        desc(schema.bangCatatan.created_at),
       );
 
     const catatan = await catatanQ.execute();
 
     for (let i = 0; i < catatan.length; i++) {
-      const thumbnailKey = this.s3Service.getObjectKeyFromUrl(catatan[i].thumbnail_url);
+      const thumbnailKey = this.s3Service.getObjectKeyFromUrl(
+        catatan[i].thumbnail_url,
+      );
       if (thumbnailKey) {
         const url = await this.s3Service.getPresignedUrl(thumbnailKey);
         catatan[i].thumbnail_url = url;
       }
 
-      const authorPictureKey = this.s3Service.getObjectKeyFromUrl(catatan[i].author_picture);
+      const authorPictureKey = this.s3Service.getObjectKeyFromUrl(
+        catatan[i].author_picture,
+      );
       if (authorPictureKey) {
         const url = await this.s3Service.getPresignedUrl(authorPictureKey);
         catatan[i].author_picture = url;
@@ -260,7 +285,7 @@ class BangCatatanService {
     }
 
     const result = catatan[0];
-    
+
     const key = this.s3Service.getObjectKeyFromUrl(result.asset_url);
     if (key) {
       const url = await this.s3Service.getPresignedUrl(key);
@@ -298,7 +323,8 @@ class BangCatatanService {
     }
 
     const catatanLikedHistoryRef = this.getCatatanLikedHistoryDocRef(catatanId);
-    const userCatatanLikedHistoryRef = this.getCatatanLikedHistoryOfUserDocRef(userId);
+    const userCatatanLikedHistoryRef =
+      this.getCatatanLikedHistoryOfUserDocRef(userId);
 
     let updatedLikeCount = catatan[0].like_count;
 
@@ -306,10 +332,14 @@ class BangCatatanService {
       const catatanHistoryDoc = await t.get(catatanLikedHistoryRef);
       const userCatatanHistoryDoc = await t.get(userCatatanLikedHistoryRef);
 
-      const userIds: string[] = catatanHistoryDoc.exists ? catatanHistoryDoc.data().histories : [];
+      const userIds: string[] = catatanHistoryDoc.exists
+        ? catatanHistoryDoc.data().histories
+        : [];
       const userIndex = userIds.indexOf(userId);
-      
-      const catatanIds: string[] = userCatatanHistoryDoc.exists ? userCatatanHistoryDoc.data().catatan_ids : [];
+
+      const catatanIds: string[] = userCatatanHistoryDoc.exists
+        ? userCatatanHistoryDoc.data().catatan_ids
+        : [];
       const catatanIndex = catatanIds.indexOf(catatanId);
 
       if (userIndex != -1 && catatanIndex != -1) {
@@ -341,14 +371,22 @@ class BangCatatanService {
           });
         }
       }
-      
-      if (userIds.length !== (catatan[0].like_count + 1)) {
-        console.log(`${new Date().toISOString()}: synchronizing like count from db (${(catatan[0].like_count + 1)}) to firebase (${userIds.length}) - catatanId: '${catatanId}'`);
+
+      if (userIds.length !== catatan[0].like_count + 1) {
+        console.log(
+          `${new Date().toISOString()}: synchronizing like count from db (${
+            catatan[0].like_count + 1
+          }) to firebase (${userIds.length}) - catatanId: '${catatanId}'`,
+        );
       }
       updatedLikeCount = userIds.length; // the like histories in firebase will be the source of truth
     });
 
-    console.log(`${new Date().toISOString()}: like catatan - id: '${catatanId}' - updating like count from ${catatan[0].like_count} to ${updatedLikeCount}`);
+    console.log(
+      `${new Date().toISOString()}: like catatan - id: '${catatanId}' - updating like count from ${
+        catatan[0].like_count
+      } to ${updatedLikeCount}`,
+    );
 
     await this.db
       .update(schema.bangCatatan)
@@ -381,7 +419,8 @@ class BangCatatanService {
     }
 
     const catatanLikedHistoryRef = this.getCatatanLikedHistoryDocRef(catatanId);
-    const userCatatanLikedHistoryRef = this.getCatatanLikedHistoryOfUserDocRef(userId);
+    const userCatatanLikedHistoryRef =
+      this.getCatatanLikedHistoryOfUserDocRef(userId);
 
     let updatedLikeCount = catatan[0].like_count;
 
@@ -389,10 +428,14 @@ class BangCatatanService {
       const catatanHistoryDoc = await t.get(catatanLikedHistoryRef);
       const userCatatanHistoryDoc = await t.get(userCatatanLikedHistoryRef);
 
-      const userIds: string[] = catatanHistoryDoc.exists ? catatanHistoryDoc.data().histories : [];
+      const userIds: string[] = catatanHistoryDoc.exists
+        ? catatanHistoryDoc.data().histories
+        : [];
       const userIndex = userIds.indexOf(userId);
-      
-      const catatanIds: string[] = userCatatanHistoryDoc.exists ? userCatatanHistoryDoc.data().catatan_ids : [];
+
+      const catatanIds: string[] = userCatatanHistoryDoc.exists
+        ? userCatatanHistoryDoc.data().catatan_ids
+        : [];
       const catatanIndex = catatanIds.indexOf(catatanId);
 
       if (userIndex == -1 && catatanIndex == -1) {
@@ -425,13 +468,21 @@ class BangCatatanService {
         }
       }
 
-      if (userIds.length !== (catatan[0].like_count - 1)) {
-        console.log(`${new Date().toISOString()}: synchronizing like count from db (${(catatan[0].like_count - 1)}) to firebase (${userIds.length}) - catatanId: '${catatanId}'`);
+      if (userIds.length !== catatan[0].like_count - 1) {
+        console.log(
+          `${new Date().toISOString()}: synchronizing like count from db (${
+            catatan[0].like_count - 1
+          }) to firebase (${userIds.length}) - catatanId: '${catatanId}'`,
+        );
       }
       updatedLikeCount = userIds.length; // the like histories in firebase will be the source of truth
     });
 
-    console.log(`${new Date().toISOString()}: unlike catatan - id: '${catatanId}' - updating like count from ${catatan[0].like_count} to ${updatedLikeCount}`);
+    console.log(
+      `${new Date().toISOString()}: unlike catatan - id: '${catatanId}' - updating like count from ${
+        catatan[0].like_count
+      } to ${updatedLikeCount}`,
+    );
 
     await this.db
       .update(schema.bangCatatan)
@@ -482,7 +533,11 @@ class BangCatatanService {
     };
   }
 
-  async reportCatatan(catatanId: string, userId: string, report: ReportCatatanDTO) {
+  async reportCatatan(
+    catatanId: string,
+    userId: string,
+    report: ReportCatatanDTO,
+  ) {
     const catatan = await this.db
       .select({
         id: schema.bangCatatan.id,
@@ -519,7 +574,11 @@ class BangCatatanService {
       `Catatan ID: ${catatan[0].id}\nTitle: ${catatan[0].title}\nDescription: ${catatan[0].description}\nTotal Reports: ${reports.length}\n\nReport ID: ${reportCatatan[0].id}\nReason: ${report.reason}`,
     );
 
-    console.log(`${new Date().toISOString()}: new report of bang catatan with id '${catatanId}' - total reports: ${reports.length}`);
+    console.log(
+      `${new Date().toISOString()}: new report of bang catatan with id '${catatanId}' - total reports: ${
+        reports.length
+      }`,
+    );
 
     return {
       message: 'Catatan has been reported',
@@ -530,8 +589,12 @@ class BangCatatanService {
   }
 
   async isCatatanLiked(catatanId: string, userId: string) {
-    const userCatatanHistoryDoc = await this.getCatatanLikedHistoryOfUserDocRef(userId).get();
-    const catatanIds: string[] = userCatatanHistoryDoc.exists ? userCatatanHistoryDoc.data().catatan_ids : [];
+    const userCatatanHistoryDoc = await this.getCatatanLikedHistoryOfUserDocRef(
+      userId,
+    ).get();
+    const catatanIds: string[] = userCatatanHistoryDoc.exists
+      ? userCatatanHistoryDoc.data().catatan_ids
+      : [];
     return catatanIds.includes(catatanId);
   }
 

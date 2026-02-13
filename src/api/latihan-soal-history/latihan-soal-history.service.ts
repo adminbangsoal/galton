@@ -7,9 +7,9 @@ import * as dayjs from 'dayjs';
 import { truncateLatexText } from 'src/common/lib/utils';
 import LatihanSoalService from '../latihan-soal/latihan-soal.service';
 import { LatihanSoalSummary } from '../latihan-soal/latihan-soal.type';
-import { MathpixMarkdownModel } from "mathpix-markdown-it";
-import * as Window from 'window'
-import { JSDOM } from "jsdom"
+import { MathpixMarkdownModel } from 'mathpix-markdown-it';
+import * as Window from 'window';
+import { JSDOM } from 'jsdom';
 
 @Injectable()
 export class LatihanSoalHistoryService {
@@ -17,7 +17,7 @@ export class LatihanSoalHistoryService {
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
     private readonly latihanSoalService: LatihanSoalService,
-  ) { }
+  ) {}
 
   async getLatihanSoalHistory(
     userId: string,
@@ -73,8 +73,8 @@ export class LatihanSoalHistoryService {
           minYear && !maxYear && gte(questions.year, minYear),
           maxYear && minYear && lte(questions.year, maxYear),
           maxYear &&
-          minYear &&
-          and(gte(questions.year, minYear), lte(questions.year, maxYear)),
+            minYear &&
+            and(gte(questions.year, minYear), lte(questions.year, maxYear)),
         ),
       )
       .execute();
@@ -87,25 +87,28 @@ export class LatihanSoalHistoryService {
 
     const options = {
       htmlTags: true,
-      width: 800
+      width: 800,
     };
 
     for (let i = 0; i < result.length; i++) {
-      const firstContent = result[i].questions.find(({ isMedia }) => !isMedia)
+      const firstContent = result[i].questions.find(({ isMedia }) => !isMedia);
 
-      result[i].questions = [{
-        content: truncateLatexText(firstContent.content),
-        isMedia: false,
-      }];
+      result[i].questions = [
+        {
+          content: truncateLatexText(firstContent.content),
+          isMedia: false,
+        },
+      ];
 
-      result[i].questions[0]['html_content'] = MathpixMarkdownModel.markdownToHTML(firstContent.content);
+      result[i].questions[0]['html_content'] =
+        MathpixMarkdownModel.markdownToHTML(firstContent.content);
     }
 
     result.sort((a, b) => {
       if (a.timestamp > b.timestamp) return -1;
       if (a.timestamp < b.timestamp) return 1;
       return 0;
-    })
+    });
 
     return result;
   }
@@ -125,7 +128,7 @@ export class LatihanSoalHistoryService {
         topic_name: topics.name,
         id: questions.id,
         type: questions.type,
-        filled_answers: questions.filledAnswer // for fill-in type of questions
+        filled_answers: questions.filledAnswer, // for fill-in type of questions
       })
       .from(schema.questions)
       .leftJoin(topics, eq(topics.id, questions.topic_id))
@@ -280,8 +283,8 @@ export class LatihanSoalHistoryService {
           minYear && !maxYear && gte(questions.year, minYear),
           maxYear && minYear && lte(questions.year, maxYear),
           maxYear &&
-          minYear &&
-          and(gte(questions.year, minYear), lte(questions.year, maxYear)),
+            minYear &&
+            and(gte(questions.year, minYear), lte(questions.year, maxYear)),
         ),
       )
       .limit(limit || undefined)
@@ -298,19 +301,23 @@ export class LatihanSoalHistoryService {
     };
 
     for (let i = 0; i < result.length; i++) {
-      const firstContent = result[i].questions.find(({ isMedia }) => !isMedia)
-      result[i].questions = [{
-        content: MathpixMarkdownModel.markdownToHTML(truncateLatexText(firstContent.content), options),
-        isMedia: false,
-      }];
+      const firstContent = result[i].questions.find(({ isMedia }) => !isMedia);
+      result[i].questions = [
+        {
+          content: MathpixMarkdownModel.markdownToHTML(
+            truncateLatexText(firstContent.content),
+            options,
+          ),
+          isMedia: false,
+        },
+      ];
     }
 
     result.sort((a, b) => {
       if (a.timestamp > b.timestamp) return -1;
       if (a.timestamp < b.timestamp) return 1;
       return 0;
-    })
-    return result
+    });
+    return result;
   }
-
 }

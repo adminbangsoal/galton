@@ -7,10 +7,10 @@ import { Question, questions, subjects, topics } from '../database/schema';
 import axios, { AxiosError } from 'axios';
 import * as postgres from 'postgres';
 import { PgSelect } from 'drizzle-orm/pg-core';
+import { ConfigService } from '@nestjs/config';
 const dotenv = require('dotenv');
 
 dotenv.config();
-
 
 type QuestionType =
   | 'fill-in'
@@ -52,64 +52,62 @@ const ENDPOINTS: Record<QuestionType, string> = {
 const SUBJECT_CONFIGS: SubjectConfig[] = [
   // add more subjects here
   {
-    name: "Penalaran Induktif",
-    "multiple-choice": 7,
-    "multiple-answer": 3,
+    name: 'Penalaran Induktif',
+    'multiple-choice': 7,
+    'multiple-answer': 3,
   },
   {
-    name: "Penalaran Deduktif",
-    "multiple-choice": 7,
-    "multiple-answer": 3,
+    name: 'Penalaran Deduktif',
+    'multiple-choice': 7,
+    'multiple-answer': 3,
   },
   {
-    name: "Penalaran Kuantitatif",
-    "multiple-choice": 7,
-    "multiple-answer": 3,
+    name: 'Penalaran Kuantitatif',
+    'multiple-choice': 7,
+    'multiple-answer': 3,
   },
   {
-    name: "Pengetahuan dan Pemahaman Umum",
-    "multiple-choice": 20,
-    "multiple-answer": 0,
+    name: 'Pengetahuan dan Pemahaman Umum',
+    'multiple-choice': 20,
+    'multiple-answer': 0,
   },
   {
-    name: "Kemampuan Memahami Bacaan dan Menulis",
-    "multiple-choice": 20,
-    "multiple-answer": 0,
+    name: 'Kemampuan Memahami Bacaan dan Menulis',
+    'multiple-choice': 20,
+    'multiple-answer': 0,
   },
   {
-    name: "Pengetahuan Kuantitatif",
-    "multiple-choice": 7,
-    "multiple-answer": 2,
-    "fill-in": 3,
-    "table-choice": 3
+    name: 'Pengetahuan Kuantitatif',
+    'multiple-choice': 7,
+    'multiple-answer': 2,
+    'fill-in': 3,
+    'table-choice': 3,
   },
   {
-    name: "Literasi dalam Bahasa Indonesia",
-    "multiple-choice": 20,
-    "multiple-answer": 0,
+    name: 'Literasi dalam Bahasa Indonesia',
+    'multiple-choice': 20,
+    'multiple-answer': 0,
   },
   {
-    name: "Literasi dalam Bahasa Inggris",
-    "multiple-choice": 20,
-    "multiple-answer": 0,
+    name: 'Literasi dalam Bahasa Inggris',
+    'multiple-choice': 20,
+    'multiple-answer': 0,
   },
   {
-    name: "Penalaran Matematika",
-    "multiple-choice": 8,
-    "multiple-answer": 5,
-    "fill-in": 4,
-    "table-choice": 3
-  }
-
+    name: 'Penalaran Matematika',
+    'multiple-choice': 8,
+    'multiple-answer': 5,
+    'fill-in': 4,
+    'table-choice': 3,
+  },
 ];
 
 const penalaranKuantitatifTopicMapping = [
-  "Aritmatika Sosial",
-  "Aturan Pencacahan",
-  "Barisan dan Deret",
-  "Operasi Bilangan"
-]
-
+  'Aritmatika Sosial',
+  'Aturan Pencacahan',
+  'Barisan dan Deret',
+  'Operasi Bilangan',
+];
 
 const makeApiCall = async (
   endpoint: string,
@@ -125,10 +123,9 @@ const makeApiCall = async (
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error(
-        `\nAPI call to ${endpoint} failed (Attempt ${i + 1}/${retries}): ${JSON.stringify(
-          axiosError.response.data
-        )
-        }`,
+        `\nAPI call to ${endpoint} failed (Attempt ${
+          i + 1
+        }/${retries}): ${JSON.stringify(axiosError.response.data)}`,
       );
 
       if (i === retries - 1) throw error;
@@ -166,7 +163,10 @@ const generateQuestion = async (
 
   try {
     const result = await makeApiCall(ENDPOINTS[type], data);
-    if ((type === 'multiple-answer' || type === 'multiple-choice') && result.data) {
+    if (
+      (type === 'multiple-answer' || type === 'multiple-choice') &&
+      result.data
+    ) {
       result.data = {
         question: result.data.Question,
         answer: result.data.Answer,
@@ -205,31 +205,48 @@ const generateQuestionsForSubject = async (
 
   let randomQuestions: Question[] = [];
 
-  if (subjectConfig.name === 'Penalaran Kuantitatif' || subjectConfig.name === 'Penalaran Induktif' || subjectConfig.name === "Penalaran Deduktif") {
+  if (
+    subjectConfig.name === 'Penalaran Kuantitatif' ||
+    subjectConfig.name === 'Penalaran Induktif' ||
+    subjectConfig.name === 'Penalaran Deduktif'
+  ) {
     const subject = await db.query.subjects.findFirst({
-      where: eq(subjects.name, 'Kemampuan Penalaran Umum')
-    })
+      where: eq(subjects.name, 'Kemampuan Penalaran Umum'),
+    });
 
-    const topicFilter = subjectConfig.name === 'Penalaran Kuantitatif' ? penalaranKuantitatifTopicMapping : [subjectConfig.name]
+    const topicFilter =
+      subjectConfig.name === 'Penalaran Kuantitatif'
+        ? penalaranKuantitatifTopicMapping
+        : [subjectConfig.name];
 
     const topic = await db.query.topics.findMany({
       where: and(
         eq(topics.subject_id, subject.id),
-        inArray(topics.name, topicFilter)
+        inArray(topics.name, topicFilter),
+      ),
+    });
+
+    randomQuestions = await db
+      .select()
+      .from(questions)
+      .where(
+        and(
+          gte(questions.year, 2021),
+          eq(questions.subject_id, subject.id),
+          inArray(
+            questions.topic_id,
+            topic.map((t) => t.id),
+          ),
+        ),
       )
-    })
+      .orderBy(sql`RANDOM()`);
 
-    randomQuestions = await db.select().from(questions).where(
-      and(
-        gte(questions.year, 2021),
-        eq(questions.subject_id, subject.id),
-        inArray(questions.topic_id, topic.map(t => t.id))
-      )
-    ).orderBy(sql`RANDOM()`)
-
-    console.log(`Total questions for ${subjectConfig.name}: ${randomQuestions.length}`)
-    console.log(`Data for ${subjectConfig.name}: ${JSON.stringify(randomQuestions)}`)
-
+    console.log(
+      `Total questions for ${subjectConfig.name}: ${randomQuestions.length}`,
+    );
+    console.log(
+      `Data for ${subjectConfig.name}: ${JSON.stringify(randomQuestions)}`,
+    );
   } else {
     const subject = await db
       .select()
@@ -241,8 +258,10 @@ const generateQuestionsForSubject = async (
     randomQuestions = await db
       .select()
       .from(questions)
-      .where(and(eq(questions.subject_id, subject.id), gte(questions.year, 2021)))
-      .orderBy(sql`RANDOM()`)
+      .where(
+        and(eq(questions.subject_id, subject.id), gte(questions.year, 2021)),
+      )
+      .orderBy(sql`RANDOM()`);
   }
 
   const questionTypes: QuestionType[] = [];
@@ -252,25 +271,21 @@ const generateQuestionsForSubject = async (
   });
 
   let counter = 0;
-  const res:ApiResponse[] = []
+  const res: ApiResponse[] = [];
 
-  for(let i=0;i<questionTypes.length;i++) {
+  for (let i = 0; i < questionTypes.length; i++) {
     // reset counter if it exceed the randomQuestions length
-    if(counter >= randomQuestions.length) {
-      counter = 0
+    if (counter >= randomQuestions.length) {
+      counter = 0;
     }
-    const question = randomQuestions[counter]
-    const result = await generateQuestion(
-      questionTypes[i],
-      question
-    )
-    res.push(result)
-    counter++
+    const question = randomQuestions[counter];
+    const result = await generateQuestion(questionTypes[i], question);
+    res.push(result);
+    counter++;
   }
 
   return res;
 };
-
 
 const run = async () => {
   console.log('Running Question Generator Script...');
@@ -300,13 +315,14 @@ const run = async () => {
     process.exit(1);
   }
 
-  const s3Service = new S3Service();
+  const configService = new ConfigService();
+  const s3Service = new S3Service(configService);
   const outputPath = `tryout-questions/${identifier}.json`;
 
   await s3Service.uploadFile(
     Buffer.from(JSON.stringify(allResponses, null, 2)),
     outputPath,
-    'bangsoal'
+    'bangsoal',
   );
 
   console.log(`Responses uploaded to S3 at ${outputPath}`);
@@ -322,5 +338,4 @@ run()
     process.exit(1);
   });
 
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

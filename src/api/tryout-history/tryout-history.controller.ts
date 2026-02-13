@@ -12,13 +12,17 @@ import { Request } from 'express';
 import TryoutHistoryService from './tryout-history.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
-import { AddFeedbackDto, AddQuestionNoteDto, JobDto } from './tryout-history.dto';
+import {
+  AddFeedbackDto,
+  AddQuestionNoteDto,
+  JobDto,
+} from './tryout-history.dto';
 import { TuringGuard } from 'src/authentication/guard/turing.guard';
 
 @ApiTags('Tryout History')
 @Controller('tryout-history')
 export class TryoutHistoryController {
-  constructor(private readonly tryoutHistoryService: TryoutHistoryService) { }
+  constructor(private readonly tryoutHistoryService: TryoutHistoryService) {}
 
   @ApiBearerAuth()
   @Get('/')
@@ -140,9 +144,7 @@ export class TryoutHistoryController {
   @ApiBearerAuth()
   @Post('/jobs')
   @UseGuards(TuringGuard)
-  async addTryoutScoreCalculationJob(
-    @Body() data: JobDto,
-  ) {
+  async addTryoutScoreCalculationJob(@Body() data: JobDto) {
     return await this.tryoutHistoryService.addTryoutScoreCalculationJob(
       data.tryout_id,
     );
@@ -151,9 +153,7 @@ export class TryoutHistoryController {
   @ApiBearerAuth()
   @Delete('/jobs')
   @UseGuards(TuringGuard)
-  async removeTryoutScoreCalculationJob(
-    @Body() data: JobDto,
-  ) {
+  async removeTryoutScoreCalculationJob(@Body() data: JobDto) {
     return await this.tryoutHistoryService.removeTryoutScoreCalculationJob(
       data.tryout_id,
     );
@@ -189,5 +189,4 @@ export class TryoutHistoryController {
       (req.user as any).userId,
     );
   }
-  
 }

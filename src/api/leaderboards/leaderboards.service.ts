@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { S3Service } from 'src/s3/s3.service';
 import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';

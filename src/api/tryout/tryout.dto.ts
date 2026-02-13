@@ -35,12 +35,7 @@ export class AnswerQuestionDto {
   answer: string;
 
   @ApiProperty({
-    example: [
-      'TRUE',
-      '',
-      'FALSE',
-      'TRUE',
-    ],
+    example: ['TRUE', '', 'FALSE', 'TRUE'],
   })
   @IsString({ each: true })
   filled_answers: string[];
@@ -67,7 +62,6 @@ export class StartTryoutDto {
   @IsString()
   @IsOptional()
   event_code: string;
-
 }
 
 export class StartTryoutSetDto {

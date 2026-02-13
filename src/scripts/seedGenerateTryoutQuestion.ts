@@ -11,6 +11,7 @@ import {
   tryout_subjects,
 } from '../database/schema/tryouts.schema';
 import * as postgres from 'postgres';
+import { ConfigService } from '@nestjs/config';
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -77,100 +78,106 @@ const run = async () => {
   }
 
   const seedTryoutFromGeneratedQuestions = async () => {
-    const s3Service = new S3Service(); // Initialize S3Service
-    const generatedQuestionsPath = `tryout-questions/${identifier}.json`; 
+    const configService = new ConfigService();
+    const s3Service = new S3Service(configService); // Initialize S3Service
+    const generatedQuestionsPath = `tryout-questions/${identifier}.json`;
 
-    const presignedUrl = await s3Service.getPresignedUrl(generatedQuestionsPath, 'bangsoal');
-    
+    const presignedUrl = await s3Service.getPresignedUrl(
+      generatedQuestionsPath,
+      'bangsoal',
+    );
+
     const response = await fetch(presignedUrl);
     const generatedQuestionsData = await response.text();
-    const generatedQuestions: GeneratedQuestions = JSON.parse(generatedQuestionsData);
+    const generatedQuestions: GeneratedQuestions = JSON.parse(
+      generatedQuestionsData,
+    );
 
-      // create tryout
-      const [tryout] = await db
-        .insert(tryouts)
+    // create tryout
+    const [tryout] = await db
+      .insert(tryouts)
+      .values({
+        name: tryoutName,
+        startDate: new Date(),
+        expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        description: tryoutDescription,
+        isWindow: true,
+        timeLimit: 60 * 60 * 1000,
+      })
+      .returning();
+
+    let previousSetId: string | null = null;
+
+    for (const [subjectName, questions] of Object.entries(generatedQuestions)) {
+      // fetch existing subject
+      const [subject] = await db
+        .select()
+        .from(tryout_subjects)
+        .where(eq(tryout_subjects.name, subjectName));
+
+      if (!subject) {
+        console.warn(`Subject "${subjectName}" not found. Skipping...`);
+        continue;
+      }
+
+      // create tryout set
+      const [tryoutSet] = await db
+        .insert(tryout_sets)
         .values({
-          name: tryoutName,
-          startDate: new Date(),
-          expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          description: tryoutDescription,
-          isWindow: true,
-          timeLimit: 60 * 60 * 1000,
+          tryoutId: tryout.id,
+          subjectId: subject.id,
+          duration: 3600,
         })
         .returning();
 
-      let previousSetId: string | null = null;
-
-      for (const [subjectName, questions] of Object.entries(
-        generatedQuestions,
-      )) {
-        // fetch existing subject
-        const [subject] = await db
-          .select()
-          .from(tryout_subjects)
-          .where(eq(tryout_subjects.name, subjectName));
-
-        if (!subject) {
-          console.warn(`Subject "${subjectName}" not found. Skipping...`);
-          continue;
-        }
-
-        // create tryout set
-        const [tryoutSet] = await db
-          .insert(tryout_sets)
-          .values({
-            tryoutId: tryout.id,
-            subjectId: subject.id,
-            duration: 3600,
-          })
-          .returning();
-
-        // update the previous set's nextSet if it exists
-        if (previousSetId) {
-          await db
-            .update(tryout_sets)
-            .set({ nextSet: tryoutSet.id })
-            .where(eq(tryout_sets.id, previousSetId));
-        } else {
-          // if this is the first set, update the tryout's firstSetId
-          await db
-            .update(tryouts)
-            .set({ firstSetId: tryoutSet.id })
-            .where(eq(tryouts.id, tryout.id));
-        }
-
-        previousSetId = tryoutSet.id;
-
-        // create tryout questions
-        const tryoutQuestionValues = questions
-          .map((q: GeneratedQuestion) => {
-            return {
-              tryoutSetId: tryoutSet.id,
-              content: q.data.question,
-              options:
-                q.type === 'multiple-answer' || q.type === 'table-choice' || q.type === 'multiple-choice'
-                  ? q.data.choice?.map((c) => ({
-                      id: uuidv4(),
-                      key: c.key,
-                      content: c.content,
-                      statement: c.statement,
-                      is_true: c.is_true,
-                    })) || []
-                  : [],
-              isTextAnswer: q.type === 'fill-in',
-              source: q.source,
-              questionId: q.question_id,
-              type: q.type as QuestionType,
-              answers: q.data.answer ? [q.data.answer] : undefined,
-              explanations: q.data.explanation
-                ? [{ content: q.data.explanation, isMedia: false }]
-                : [],
-            };
-          })
-          .filter((q) => q !== null);
-
-        await db.insert(tryout_questions).values(tryoutQuestionValues);
+      // update the previous set's nextSet if it exists
+      if (previousSetId) {
+        await db
+          .update(tryout_sets)
+          .set({ nextSet: tryoutSet.id })
+          .where(eq(tryout_sets.id, previousSetId));
+      } else {
+        // if this is the first set, update the tryout's firstSetId
+        await db
+          .update(tryouts)
+          .set({ firstSetId: tryoutSet.id })
+          .where(eq(tryouts.id, tryout.id));
       }
+
+      previousSetId = tryoutSet.id;
+
+      // create tryout questions
+      const tryoutQuestionValues = questions
+        .map((q: GeneratedQuestion) => {
+          return {
+            tryoutSetId: tryoutSet.id,
+            content: q.data.question,
+            options:
+              q.type === 'multiple-answer' ||
+              q.type === 'table-choice' ||
+              q.type === 'multiple-choice'
+                ? q.data.choice?.map((c) => ({
+                    id: uuidv4(),
+                    key: c.key,
+                    content: c.content,
+                    statement: c.statement,
+                    is_true: c.is_true,
+                  })) || []
+                : [],
+            isTextAnswer: q.type === 'fill-in',
+            source: q.source,
+            questionId: q.question_id,
+            type: q.type as QuestionType,
+            answers: q.data.answer ? [q.data.answer] : undefined,
+            explanations: q.data.explanation
+              ? [{ content: q.data.explanation, isMedia: false }]
+              : [],
+          };
+        })
+        .filter((q) => q !== null);
+
+      await db.insert(tryout_questions).values(tryoutQuestionValues);
+    }
 
     console.log('Tryout seeded successfully');
   };

@@ -52,7 +52,7 @@ export default class LatihanSoalService {
     private s3Service: S3Service,
     private configService: ConfigService,
     private firebaseService: FirebaseService,
-  ) { }
+  ) {}
 
   async getLatihanSoal(
     subjectId: string,
@@ -86,8 +86,8 @@ export default class LatihanSoalService {
       where: eq(schema.subjects.name, 'UNDECIDED'),
       columns: {
         id: true,
-      }
-    })
+      },
+    });
 
     if (!!cachedQuestion) {
       if (!!questionId) {
@@ -100,7 +100,7 @@ export default class LatihanSoalService {
               and(
                 eq(schema.questions.id, questionId),
                 eq(schema.questions.published, true),
-                not(eq(schema.questions.subject_id, undecidedSubject.id))
+                not(eq(schema.questions.subject_id, undecidedSubject.id)),
               ),
             )
             .execute();
@@ -108,7 +108,9 @@ export default class LatihanSoalService {
             throw new NotFoundException('Question not found');
           }
 
-          const firstContent = query[0].question.find(({ isMedia }) => !isMedia);
+          const firstContent = query[0].question.find(
+            ({ isMedia }) => !isMedia,
+          );
 
           cachedQuestion[0] = {
             id: query[0].id,
@@ -174,7 +176,7 @@ export default class LatihanSoalService {
             and(
               eq(schema.questions.id, questionId),
               eq(schema.questions.published, true),
-              not(eq(schema.questions.subject_id, undecidedSubject.id))
+              not(eq(schema.questions.subject_id, undecidedSubject.id)),
             ),
           )
           .execute();
@@ -207,13 +209,12 @@ export default class LatihanSoalService {
     maxYear?: number,
     attemptedQuestions?: string[],
   ) {
-
     const undecidedSubject = await this.db.query.subjects.findFirst({
       where: eq(schema.subjects.name, 'UNDECIDED'),
       columns: {
         id: true,
-      }
-    })
+      },
+    });
 
     return await this.db
       .select({
@@ -340,7 +341,6 @@ export default class LatihanSoalService {
       `qattempt:${questionId}:${userId}`,
     );
 
-
     if (!!qattempt) {
       const questionAttempt = await this.db
         .update(schema.question_attempts)
@@ -359,7 +359,7 @@ export default class LatihanSoalService {
         `qattempt:${questionId}:${userId}`,
         {
           ...questionAttempt[0],
-          type: isQuestionExist.type
+          type: isQuestionExist.type,
         },
         3600 * 6,
       );
@@ -382,7 +382,7 @@ export default class LatihanSoalService {
         `qattempt:${questionId}:${userId}`,
         {
           ...questionAttempt[0],
-          type: isQuestionExist.type
+          type: isQuestionExist.type,
         },
         3600 * 6,
       );
@@ -395,7 +395,6 @@ export default class LatihanSoalService {
   }
 
   async getPembahasan(questionId: string, userId: string, attemptId?: string) {
-
     const user = await this.db.query.users.findFirst({
       where: ({ id }, { eq }) => eq(id, userId),
       columns: {
@@ -412,11 +411,9 @@ export default class LatihanSoalService {
         id: true,
         options: true,
         filledAnswer: true,
-        type: true
+        type: true,
       },
     });
-
-
 
     if (!attemptId) {
       if (!isUserSubscribed) {
@@ -425,10 +422,10 @@ export default class LatihanSoalService {
           correct_answer: `You are not premium account`,
           attempt: {
             filled_answer: [],
-            choice_id: "",
-            answer_history: "",
+            choice_id: '',
+            answer_history: '',
           },
-          type: question.type
+          type: question.type,
         };
       } else {
         // return not correct answer for attempting but not submitting
@@ -441,22 +438,26 @@ export default class LatihanSoalService {
           correct_answer: {
             answer: question.answers,
             choice: correctAnswer ?? null,
-            filled_answer: question.filledAnswer.map((answer)=>{
-              return answer.toString()
+            filled_answer: question.filledAnswer.map((answer) => {
+              return answer.toString();
             }),
           },
           attempt: {
             filled_answer: [],
-            choice_id: "",
-            answer_history: "",
+            choice_id: '',
+            answer_history: '',
           },
-          type: question.type
+          type: question.type,
         };
       }
     }
 
     const qattempt = await this.db.query.question_attempts.findFirst({
-      where: and(eq(schema.question_attempts.id, attemptId), eq(schema.question_attempts.user_id, userId), eq(schema.question_attempts.question_id, questionId))
+      where: and(
+        eq(schema.question_attempts.id, attemptId),
+        eq(schema.question_attempts.user_id, userId),
+        eq(schema.question_attempts.question_id, questionId),
+      ),
     });
 
     if (!qattempt) {
@@ -465,7 +466,10 @@ export default class LatihanSoalService {
 
     const answerAttempt = qattempt.choice_id || qattempt.filledAnswers;
 
-    const isAnswerCorrect = this.isAnswerCorrect(question as Question, answerAttempt);
+    const isAnswerCorrect = this.isAnswerCorrect(
+      question as Question,
+      answerAttempt,
+    );
 
     if (!isUserSubscribed) {
       return {
@@ -476,7 +480,7 @@ export default class LatihanSoalService {
           choice_id: qattempt.choice_id,
           answer_history: qattempt.answer_history,
         },
-        type: question.type
+        type: question.type,
       };
     }
     return {
@@ -484,8 +488,8 @@ export default class LatihanSoalService {
       correct_answer: {
         answer: question.answers,
         choice: question.options,
-        filled_answer: question.filledAnswer.map((answer)=> {
-          return answer.toString()
+        filled_answer: question.filledAnswer.map((answer) => {
+          return answer.toString();
         }),
       },
       attempt: {
@@ -493,7 +497,7 @@ export default class LatihanSoalService {
         choice_id: qattempt.choice_id,
         answer_history: qattempt.answer_history,
       },
-      type: question.type
+      type: question.type,
     };
   }
 
@@ -558,7 +562,7 @@ export default class LatihanSoalService {
 
     const subject = await this.db.query.subjects.findFirst({
       where: eq(schema.subjects.id, soal.questions.subject_id),
-    })
+    });
 
     // remove the is_true
     const options = soal.questions.options.map(({ is_true, ...rest }) => rest);
@@ -572,7 +576,7 @@ export default class LatihanSoalService {
       options: options,
       last_attempted: null,
       type: soal.questions.type,
-    }
+    };
 
     // sort the options if its multiple choice questions
     const lastAttempted = await this.db.query.question_attempts.findFirst({
@@ -614,9 +618,12 @@ export default class LatihanSoalService {
 
     const question = await this.db.query.questions.findFirst({
       where: eq(schema.questions.id, attempt[0].question_id),
-    })
+    });
 
-    const answer = question.type == 'multiple-choice' ? attempt[0].choice_id : attempt[0].filledAnswers;
+    const answer =
+      question.type == 'multiple-choice'
+        ? attempt[0].choice_id
+        : attempt[0].filledAnswers;
     const isCorrect = this.isAnswerCorrect(question, answer);
 
     this.firebaseService.addUserHistoryPoint(
@@ -698,9 +705,15 @@ export default class LatihanSoalService {
         `questions:${subjectId}:${topicId}:${minYear}:${maxYear}:${userId}`,
       ));
 
-
     if (!cachedQuestion || cachedQuestion.length === 0) {
-      const latsol = await this.getLatihanSoal(subjectId, userId, topicId, undefined, minYear, maxYear);
+      const latsol = await this.getLatihanSoal(
+        subjectId,
+        userId,
+        topicId,
+        undefined,
+        minYear,
+        maxYear,
+      );
 
       cachedQuestion = latsol.questions;
     }
@@ -718,7 +731,6 @@ export default class LatihanSoalService {
       )
       .execute();
 
-
     const result = soal.map((soal) => {
       const { questions, topics } = soal;
 
@@ -727,19 +739,16 @@ export default class LatihanSoalService {
 
         // change the [ISIAN] to ...
         if (!content.isMedia && questions.type == 'fill-in') {
-          cleanedContent = content.content.replace(
-            /\[ISIAN\]/g, ' ____ '
-          )
+          cleanedContent = content.content.replace(/\[ISIAN\]/g, ' ____ ');
         }
 
         return {
           content: cleanedContent,
-          isMedia: content.isMedia
-        } as Content
-      })
+          isMedia: content.isMedia,
+        } as Content;
+      });
 
-
-      const cleanedOptions = (questions.options).map((option) => {
+      const cleanedOptions = questions.options.map((option) => {
         return {
           content: option.content,
           key: option.key,
@@ -763,7 +772,7 @@ export default class LatihanSoalService {
         label: `${questions.source} ${questions.year}`,
         options: questions.type === 'fill-in' ? null : sortedKeyCleanedOptions,
         slug: soal.subjects.slug,
-        type: questions.type
+        type: questions.type,
       };
     });
 
@@ -783,7 +792,7 @@ export default class LatihanSoalService {
 
     const url = `${pdfUrl}/${fileName}`;
 
-    const subjectName: string = soal[0].subjects.slug
+    const subjectName: string = soal[0].subjects.slug;
     const topicSlug = topicName ? `${topicName}-` : '';
     const generatedUrl = `${subjectName}-${topicSlug}${userId.substring(0, 3)}`;
 
@@ -799,7 +808,6 @@ export default class LatihanSoalService {
     return {
       url: generatedUrl,
     };
-
   }
 
   async generateTuringPDF(topicId: string) {
@@ -983,14 +991,12 @@ export default class LatihanSoalService {
     };
   }
 
-
   async createSequentialQuestions(
     body: CreateSequentialQuestionsDto,
     userId: string,
     subjectId: string,
   ) {
-
-    console.log('start createSequential service')
+    console.log('start createSequential service');
     const { topic_ids, max_number } = body;
 
     // Check if user has a running sequential question
@@ -1018,8 +1024,8 @@ export default class LatihanSoalService {
       where: eq(schema.subjects.name, 'UNDECIDED'),
       columns: {
         id: true,
-      }
-    })
+      },
+    });
 
     const queryFilter = () => {
       if (topic_ids.length > 0 && alreadyShowedQuestions?.length > 0) {
@@ -1029,7 +1035,7 @@ export default class LatihanSoalService {
           notInArray(schema.questions.id, alreadyShowedQuestions),
           eq(schema.questions.published, true),
           eq(schema.questions.type, 'multiple-choice'),
-          not(eq(schema.questions.subject_id, undecidedSubject.id))
+          not(eq(schema.questions.subject_id, undecidedSubject.id)),
         );
       } else if (topic_ids.length > 0) {
         return and(
@@ -1037,7 +1043,7 @@ export default class LatihanSoalService {
           inArray(schema.questions.topic_id, topic_ids),
           eq(schema.questions.published, true),
           eq(schema.questions.type, 'multiple-choice'),
-          not(eq(schema.questions.subject_id, undecidedSubject.id))
+          not(eq(schema.questions.subject_id, undecidedSubject.id)),
         );
       } else if (alreadyShowedQuestions?.length > 0) {
         return and(
@@ -1045,10 +1051,15 @@ export default class LatihanSoalService {
           notInArray(schema.questions.id, alreadyShowedQuestions),
           eq(schema.questions.published, true),
           eq(schema.questions.type, 'multiple-choice'),
-          not(eq(schema.questions.subject_id, undecidedSubject.id))
+          not(eq(schema.questions.subject_id, undecidedSubject.id)),
         );
       }
-      return and(eq(schema.questions.subject_id, subjectId), eq(schema.questions.type, 'multiple-choice'), eq(schema.questions.published, true), not(eq(schema.questions.subject_id, undecidedSubject.id)));
+      return and(
+        eq(schema.questions.subject_id, subjectId),
+        eq(schema.questions.type, 'multiple-choice'),
+        eq(schema.questions.published, true),
+        not(eq(schema.questions.subject_id, undecidedSubject.id)),
+      );
     };
 
     const questions = await this.db
@@ -1061,10 +1072,9 @@ export default class LatihanSoalService {
       .orderBy(sql`random()`)
       .execute();
 
-
     // if max_number is greater than the questions length, get random questions from the already showed questions
     if (alreadyShowedQuestions?.length && max_number > questions.length) {
-      console.log('get random questions from the already showed questions')
+      console.log('get random questions from the already showed questions');
       const difference = max_number - questions.length;
 
       // get random questions from the already showed questions
@@ -1078,7 +1088,7 @@ export default class LatihanSoalService {
             eq(schema.questions.subject_id, subjectId),
             inArray(schema.questions.id, alreadyShowedQuestions),
             eq(schema.questions.published, true),
-            not(eq(schema.questions.subject_id, undecidedSubject.id))
+            not(eq(schema.questions.subject_id, undecidedSubject.id)),
           ),
         )
         .limit(difference)
@@ -1091,7 +1101,7 @@ export default class LatihanSoalService {
       await this.cacheManager.del(
         `sequential:${subjectId}:${topic_ids}:${userId}`,
       );
-      console.log('reset already showed questions')
+      console.log('reset already showed questions');
     }
 
     if (questions.length < max_number) {
@@ -1109,7 +1119,7 @@ export default class LatihanSoalService {
       3600 * 72,
     );
 
-    console.log('insert sequential question to database')
+    console.log('insert sequential question to database');
 
     // insert sequential question to database
     const sequentialQuestion = await this.db
@@ -1124,7 +1134,7 @@ export default class LatihanSoalService {
       .returning()
       .execute();
 
-    console.log('end createSequential service')
+    console.log('end createSequential service');
 
     return sequentialQuestion;
   }
@@ -1397,7 +1407,6 @@ export default class LatihanSoalService {
       .where(eq(schema.timed_questions.id, sequentialId))
       .execute();
 
-
     if (currentNumber >= sequentialQuestion.questionIds.length - 1) {
       await this.db
         .update(schema.timed_questions)
@@ -1492,16 +1501,15 @@ export default class LatihanSoalService {
       },
     );
 
-
     const questions = await this.db.query.questions.findMany({
       where: inArray(schema.questions.id, questionIds),
       columns: {
         id: true,
         options: true,
         filledAnswer: true,
-        type: true
-      }
-    })
+        type: true,
+      },
+    });
 
     const correctChoicesMap = {};
 
@@ -1511,7 +1519,7 @@ export default class LatihanSoalService {
         if (!correctChoices) return;
         correctChoicesMap[id] = correctChoices.id;
       } else {
-        correctChoicesMap[id] = filledAnswer
+        correctChoicesMap[id] = filledAnswer;
       }
     });
 
@@ -1520,7 +1528,9 @@ export default class LatihanSoalService {
     for (let i = 0; i < attemptedOptions.length; i++) {
       if (
         attemptedOptions[i].choice_id ===
-        correctChoicesMap[attemptedOptions[i].question_id] || attemptedOptions[i].filledAnswers === correctChoicesMap[attemptedOptions[i].question_id]
+          correctChoicesMap[attemptedOptions[i].question_id] ||
+        attemptedOptions[i].filledAnswers ===
+          correctChoicesMap[attemptedOptions[i].question_id]
       ) {
         correctAnswer++;
       }
@@ -1560,7 +1570,6 @@ export default class LatihanSoalService {
       res['avg_time'] = avgTime;
       res['label'] = `Soal Klasik`;
     } else {
-
       const questionAttempts = await this.db.query.question_attempts.findMany({
         where: and(
           inArray(schema.question_attempts.question_id, questionIds),
@@ -1577,16 +1586,17 @@ export default class LatihanSoalService {
       });
 
       for (let i = 0; i < questionAttempts.length; i++) {
-        const timeLimitSubject = await this.db.query.timed_questions_time_mapping.findFirst({
-          where: eq(schema.timed_questions_time_mapping.subjectId, subject.id),
-        })
+        const timeLimitSubject =
+          await this.db.query.timed_questions_time_mapping.findFirst({
+            where: eq(
+              schema.timed_questions_time_mapping.subjectId,
+              subject.id,
+            ),
+          });
 
         const submittedTime = questionAttempts[i].submitted
           ? dayjs(questionAttempts[i].submitted)
-          : dayjs(
-            timedQuestion.submitted ??
-            timeLimitSubject.timeLimit,
-          );
+          : dayjs(timedQuestion.submitted ?? timeLimitSubject.timeLimit);
         const createdTime = dayjs(questionAttempts[i].timestamp);
         totalDiff += submittedTime.diff(createdTime, 'second');
       }
@@ -1617,23 +1627,30 @@ export default class LatihanSoalService {
       where: eq(schema.timed_questions.id, timedQuestionId),
     });
 
+    if (!timedQuestion) return false;
     if (timedQuestion.submitted) return false;
 
     let timeLimit = 0;
     // check is the time is already expired
     // check if mode is sequential
     if (timedQuestion.mode === 'sequential') {
-      const { timeLimit: sequentialTimeLimit } =
-        await this.db.query.timed_questions_time_mapping.findFirst({
-          where: eq(
-            schema.timed_questions_time_mapping.subjectId,
-            timedQuestion.subjectId,
-          ),
-          columns: {
-            timeLimit: true,
-          },
-        });
-      timeLimit = sequentialTimeLimit;
+      const timeMapping = await this.db.query.timed_questions_time_mapping.findFirst({
+        where: eq(
+          schema.timed_questions_time_mapping.subjectId,
+          timedQuestion.subjectId,
+        ),
+        columns: {
+          timeLimit: true,
+        },
+      });
+      
+      if (!timeMapping || timeMapping.timeLimit === undefined) {
+        // If no time mapping found, return false or use a default
+        // You may want to adjust this behavior based on your business logic
+        return false;
+      }
+      
+      timeLimit = timeMapping.timeLimit;
     } else if (timedQuestion.mode === 'classic') {
       timeLimit = 11700;
     }
@@ -1667,9 +1684,7 @@ export default class LatihanSoalService {
         schema.subjects,
         eq(schema.subjects.id, schema.timed_questions_time_mapping.subjectId),
       )
-      .where(
-        eq(schema.subjects.year, '2025'),
-      )
+      .where(eq(schema.subjects.year, '2025'))
       .execute();
 
     const subjectMap = {};
@@ -1690,8 +1705,8 @@ export default class LatihanSoalService {
       where: eq(schema.subjects.name, 'UNDECIDED'),
       columns: {
         id: true,
-      }
-    })
+      },
+    });
 
     for (let i = 0; i < subjects.length; i++) {
       const questionBySubject = [];
@@ -1704,23 +1719,23 @@ export default class LatihanSoalService {
         columns: {
           questionLimit: true,
         },
-      })
+      });
 
       const filter =
         alreadyShowedQuestion[subj.id].length > 0
           ? and(
-            notInArray(schema.questions.id, alreadyShowedQuestion[subj.id]),
-            eq(schema.questions.subject_id, subj.id),
-            eq(schema.questions.published, true),
-            eq(schema.questions.type, 'multiple-choice'),
-            not(eq(schema.questions.subject_id, undecidedSubject.id))
-          )
+              notInArray(schema.questions.id, alreadyShowedQuestion[subj.id]),
+              eq(schema.questions.subject_id, subj.id),
+              eq(schema.questions.published, true),
+              eq(schema.questions.type, 'multiple-choice'),
+              not(eq(schema.questions.subject_id, undecidedSubject.id)),
+            )
           : and(
-            eq(schema.questions.subject_id, subj.id),
-            eq(schema.questions.published, true),
-            eq(schema.questions.type, 'multiple-choice'),
-            not(eq(schema.questions.subject_id, undecidedSubject.id))
-          );
+              eq(schema.questions.subject_id, subj.id),
+              eq(schema.questions.published, true),
+              eq(schema.questions.type, 'multiple-choice'),
+              not(eq(schema.questions.subject_id, undecidedSubject.id)),
+            );
 
       const questionsQuery = await this.db
         .select({
@@ -1747,7 +1762,7 @@ export default class LatihanSoalService {
                 eq(schema.questions.subject_id, subj.id),
                 inArray(schema.questions.id, alreadyShowedQuestionIds),
                 eq(schema.questions.type, 'multiple-choice'), // TODO: Change this to be handling other question type
-                not(eq(schema.questions.subject_id, undecidedSubject.id))
+                not(eq(schema.questions.subject_id, undecidedSubject.id)),
               ),
             )
             .orderBy(sql`random()`)
@@ -1792,7 +1807,6 @@ export default class LatihanSoalService {
       .insert(schema.timed_questions_classic_questions)
       .values(questionBySubjectInsertValues)
       .execute();
-
 
     return {
       id: timedQuestion[0].id,
@@ -1917,7 +1931,6 @@ export default class LatihanSoalService {
       questionMap[id] = false;
     });
 
-
     const questionAttempt = await this.db.query.question_attempts.findMany({
       where: and(
         inArray(schema.question_attempts.question_id, questionIds),
@@ -1926,13 +1939,13 @@ export default class LatihanSoalService {
       ),
     });
 
-    console.log('successfully get question attempt')
+    console.log('successfully get question attempt');
 
     questionAttempt.forEach(({ question_id }) => {
       questionMap[question_id] = true;
     });
 
-    console.log('successfully get timed questions list')
+    console.log('successfully get timed questions list');
 
     return questionMap;
   }
@@ -2072,8 +2085,8 @@ export default class LatihanSoalService {
       where: eq(schema.subjects.name, 'UNDECIDED'),
       columns: {
         id: true,
-      }
-    })
+      },
+    });
 
     const questions = await this.db.query.questions.findMany({
       where: and(
@@ -2082,7 +2095,7 @@ export default class LatihanSoalService {
           timedQuestion.questionIds.map((id) => id),
         ),
         eq(schema.questions.published, true),
-        not(eq(schema.questions.subject_id, undecidedSubject.id))
+        not(eq(schema.questions.subject_id, undecidedSubject.id)),
       ),
     });
 
@@ -2094,24 +2107,26 @@ export default class LatihanSoalService {
         } else if (type === 'fill-in') {
           correctOptions[id] = filledAnswer;
         } else {
-          const correctChoicesTable = []
+          const correctChoicesTable = [];
           for (let i = 0; i < options.length; i++) {
             if (options[i].is_true) {
-              correctChoicesTable.push('TRUE')
+              correctChoicesTable.push('TRUE');
             } else {
-              correctChoicesTable.push('FALSE')
+              correctChoicesTable.push('FALSE');
             }
           }
-          correctOptions[id] = correctChoicesTable
+          correctOptions[id] = correctChoicesTable;
         }
       });
 
       questionAttempt.forEach(({ choice_id, filledAnswers, question_id }) => {
         const question = questions.find(({ id }) => id === question_id);
-        attemptedQuestions[question.id] = this.isAnswerCorrect(question, choice_id);
+        attemptedQuestions[question.id] = this.isAnswerCorrect(
+          question,
+          choice_id,
+        );
       });
     }
-
 
     const res = {
       mode: timedQuestion.mode,
@@ -2140,13 +2155,13 @@ export default class LatihanSoalService {
       subjectIds.push(...subjectIdsQuery.map(({ subjectId }) => subjectId));
 
       subjectIdsQuery.forEach(({ subjectId, questionIds }) => {
-        const cleanedQuetionsIds = []
+        const cleanedQuetionsIds = [];
         // remove unpublished questions
         for (let i = 0; i < questionIds.length; i++) {
           if (!questions.find(({ id }) => id === questionIds[i])) {
-            continue
+            continue;
           } else {
-            cleanedQuetionsIds.push(questionIds[i])
+            cleanedQuetionsIds.push(questionIds[i]);
           }
         }
 
@@ -2164,8 +2179,8 @@ export default class LatihanSoalService {
     if (timedQuestion.mode === 'sequential') {
       const cleanedResult = timedQuestion.questionIds.filter((id) => {
         // remove unpublished questions
-        return questions.find(({ id: questionId }) => questionId === id)
-      })
+        return questions.find(({ id: questionId }) => questionId === id);
+      });
 
       const result = [];
 
@@ -2303,24 +2318,22 @@ export default class LatihanSoalService {
         oldSubjectName: true,
         oldTopicName: true,
         questionId: true,
-        oldTopicId: true
-      }
+        oldTopicId: true,
+      },
     });
 
     const questionsMap = {};
 
-    for(let i=0; i<questions.length; i++) {
+    for (let i = 0; i < questions.length; i++) {
       questionsMap[questions[i].questionId] = {
-        ...questions[i]
-      }
+        ...questions[i],
+      };
     }
 
     return questionsMap;
   }
 
-
   isAnswerCorrect(question: Question, answer: string[] | string) {
-
     let isCorrect = false;
 
     switch (question.type) {
@@ -2329,17 +2342,18 @@ export default class LatihanSoalService {
           // add logger for error
           return false;
         }
-        isCorrect = JSON.stringify(question.filledAnswer) == JSON.stringify(answer);
+        isCorrect =
+          JSON.stringify(question.filledAnswer) == JSON.stringify(answer);
         return isCorrect;
       }
       case 'multiple-choice': {
         // answer is asnwerId if its multiple choice question
         if (answer instanceof Array) {
-
           // add logger for error
           return false;
         }
-        isCorrect = question.options.find((option) => option.is_true)?.id == answer;
+        isCorrect =
+          question.options.find((option) => option.is_true)?.id == answer;
         return isCorrect;
       }
 
@@ -2356,15 +2370,12 @@ export default class LatihanSoalService {
         isCorrect = true;
 
         for (let i = 0; i < options.length; i++) {
-
-          const correctOpt = options[i].is_true ? "TRUE" : "FALSE";
+          const correctOpt = options[i].is_true ? 'TRUE' : 'FALSE';
 
           if (answer[i] !== correctOpt) {
-
             isCorrect = false;
             break;
           }
-
         }
         return isCorrect;
       }
@@ -2375,9 +2386,11 @@ export default class LatihanSoalService {
         }
         const options = question.options;
         const givenAnswers = new Set(answer);
-        const correctOptions = new Set(options.filter(({ is_true }) => is_true).map(({ id }) => id));
+        const correctOptions = new Set(
+          options.filter(({ is_true }) => is_true).map(({ id }) => id),
+        );
 
-        if (givenAnswers.size !== correctOptions.size) return false
+        if (givenAnswers.size !== correctOptions.size) return false;
         isCorrect = true;
 
         for (let i = 0; i < options.length; i++) {
@@ -2393,6 +2406,5 @@ export default class LatihanSoalService {
       default:
         return isCorrect;
     }
-
   }
 }

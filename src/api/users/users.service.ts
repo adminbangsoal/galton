@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
   ConflictException,
   Inject,
@@ -8,7 +9,8 @@ import {
 import { PointHistory } from 'src/database/firebase/firebase.model';
 import { FirebaseService } from 'src/database/firebase/firebase.service';
 import { Cache } from 'cache-manager';
-import { InjectRedis, Redis } from '@nestjs-modules/ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
 import { OnboardingDto, UpdateUserProfileDto } from './users.dto';
 import * as schema from 'src/database/schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -29,7 +31,7 @@ export default class UsersService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRedis() private readonly redis: Redis,
     private s3Service: S3Service,
-  ) { }
+  ) {}
 
   async getMyPoints(userId: string) {
     const userPoint: number = await this.cacheManager.get(`point:${userId}`);
@@ -118,6 +120,25 @@ export default class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // Validate phone number format +62
+    if (data.phone_number) {
+      if (!data.phone_number.startsWith('+62')) {
+        throw new BadRequestException('Nomor telepon harus dimulai dengan +62');
+      }
+      if (data.phone_number.length < 12 || data.phone_number.length > 15) {
+        throw new BadRequestException(
+          'Format nomor telepon tidak valid. Harus +62 diikuti 9-12 digit',
+        );
+      }
+      // Validate format: +62XXXXXXXXXXX (9-12 digits after +62)
+      const phoneRegex = /^\+62\d{9,12}$/;
+      if (!phoneRegex.test(data.phone_number)) {
+        throw new BadRequestException(
+          'Format nomor telepon tidak valid. Contoh: +6281234567890',
+        );
+      }
+    }
+
     const checkIsPhoneNumberExist = await this.db.query.users.findFirst({
       where: (users, { eq }) => eq(users.phone_number, data.phone_number),
     });
@@ -184,7 +205,6 @@ export default class UsersService {
         })
         .where(eq(schema.users.id, userId))
         .execute();
-
     }
 
     // add to leaderboard
@@ -283,7 +303,7 @@ export default class UsersService {
 
     delete user.password;
     delete user.register_referal_code;
-    
+
     const res = {
       ...user,
       validity_date: dayjs(user.validity_date).format('DD-MM-YYYY'),
@@ -313,12 +333,16 @@ export default class UsersService {
         profile_img: data.profile_img ?? user.profile_img,
         choosen_major_one: data.choosen_major_one ?? user.choosen_major_one,
         highschool_year: data.highschool_year ?? user.highschool_year,
-        choosen_university_two: data.choosen_university_two ?? user.choosen_university_two,
+        choosen_university_two:
+          data.choosen_university_two ?? user.choosen_university_two,
         choosen_major_two: data.choosen_major_two ?? user.choosen_major_two,
-        choosen_university_three: data.choosen_university_three ?? user.choosen_university_three,
-        choosen_major_three: data.choosen_major_three ?? user.choosen_major_three,
+        choosen_university_three:
+          data.choosen_university_three ?? user.choosen_university_three,
+        choosen_major_three:
+          data.choosen_major_three ?? user.choosen_major_three,
         email: data.email ?? user.email,
-        choosen_university_one: data.choosen_university_one ?? user.choosen_university_one,
+        choosen_university_one:
+          data.choosen_university_one ?? user.choosen_university_one,
       })
       .where(eq(schema.users.id, userId))
       .returning()
@@ -353,7 +377,7 @@ export default class UsersService {
       first_task_submission: submissions.first,
       second_task_submission: submissions.second,
       third_task_submission: submissions.third,
-    }
+    };
 
     const result = await this.db
       .insert(schema.tryout_registrations)
@@ -388,11 +412,8 @@ export default class UsersService {
 
   async getTryoutRegistration(userId: string, tryoutId: string) {
     const registeredTO = await this.db.query.tryout_registrations.findMany({
-      where: and(
-        eq(schema.tryout_registrations.user_id, userId),
-      ),
+      where: and(eq(schema.tryout_registrations.user_id, userId)),
     });
-
 
     // check if user already registered
     const result = registeredTO.find((item) => item.tryout_id === tryoutId);
@@ -407,7 +428,9 @@ export default class UsersService {
       };
     }
 
-    const isValidated = dayjs(result.created_at).add(5, 'minutes').isBefore(dayjs());
+    const isValidated = dayjs(result.created_at)
+      .add(5, 'minutes')
+      .isBefore(dayjs());
     return {
       created_at: result.created_at,
       validated: isUserEligable ? true : isValidated,

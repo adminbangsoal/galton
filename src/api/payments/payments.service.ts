@@ -23,7 +23,7 @@ export default class PaymentsService {
     private referralService: ReferralService,
     @Inject(DrizzleAsyncProvider)
     private db: PostgresJsDatabase<typeof schema>,
-  ) { }
+  ) {}
 
   async retrieveSnapUrl(
     subscriptionType: schema.SubscriptionTypeEnum,
@@ -36,7 +36,10 @@ export default class PaymentsService {
     let amount = SUBSCRIPTION_PRICE[subscriptionType];
 
     if (referalCode) {
-      const referralCode = await this.referralService.checkValidReferralCode(referalCode, userId);
+      const referralCode = await this.referralService.checkValidReferralCode(
+        referalCode,
+        userId,
+      );
       amount = amount - referralCode.discount;
     }
 
@@ -103,8 +106,8 @@ export default class PaymentsService {
           where: eq(schema.referralCode.code, referalCode),
           columns: {
             id: true,
-          }
-        })
+          },
+        });
 
         transactionOrder.referal = referal.id;
       }
@@ -119,8 +122,7 @@ export default class PaymentsService {
   }
 
   async createTransaction(midtransBody: any) {
-    console.log(`Creating Transaction: ${midtransBody}`)
-
+    console.log(`Creating Transaction: ${midtransBody}`);
 
     const userId: string = midtransBody.order_id
       .split('-')
@@ -135,33 +137,33 @@ export default class PaymentsService {
         metadata: midtransBody,
         order_id: midtransBody.order_id,
       };
-      const transaction = await this.db.insert(schema.transactions).values(value).onConflictDoUpdate({
-        target: schema.transactions.id,
-        set: value,
-      }).returning();
+      const transaction = await this.db
+        .insert(schema.transactions)
+        .values(value)
+        .onConflictDoUpdate({
+          target: schema.transactions.id,
+          set: value,
+        })
+        .returning();
 
-      const orderedSubscriptions = await this.db.query.transactionOrders.findFirst(
-        {
+      const orderedSubscriptions =
+        await this.db.query.transactionOrders.findFirst({
           where: ({ id }, { eq }) => eq(id, midtransBody.order_id),
-        },
-      );
+        });
 
       if (midtransBody?.transaction_status == 'settlement') {
         // Update referral usage
         if (orderedSubscriptions.referal) {
-
           const referal = await this.db.query.referralCode.findFirst({
             where: eq(schema.referralCode.id, orderedSubscriptions.referal),
-          })
+          });
 
           await this.db.update(schema.referralUsage).set({
             referral_code: referal.code,
             userId: userId,
             orderId: midtransBody.order_id,
-          })
-
+          });
         }
-
 
         const newValidityDate = dayjs(orderedSubscriptions.timestamp)
           .add(
@@ -176,20 +178,23 @@ export default class PaymentsService {
             validity_date: newValidityDate,
           })
           .where(eq(schema.users.id, userId))
-          .returning({ userId: schema.users.id, validity_date: schema.users.validity_date });
+          .returning({
+            userId: schema.users.id,
+            validity_date: schema.users.validity_date,
+          });
 
-        console.log('Transaction CREATED: \n')
+        console.log('Transaction CREATED: \n');
 
         console.log({
           user: updatedUserIds[0],
           message: 'Transaction Settled',
           new_validity_date: newValidityDate,
           transaction: transaction[0],
-        })
+        });
 
-        console.log('NEW USER AFTER TRANSACTION: \n')
+        console.log('NEW USER AFTER TRANSACTION: \n');
 
-        console.log(updatedUserIds[0])
+        console.log(updatedUserIds[0]);
       }
       return {
         message: 'Transaction created',

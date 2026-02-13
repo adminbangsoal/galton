@@ -82,7 +82,6 @@ export class DashboardController {
   async getMobileDashboardRank(@Req() req: Request) {
     return await this.dashboardService.getMobileDashboardRank(
       (req.user as any).userId,
-    ); 
+    );
   }
-
 }

@@ -32,8 +32,7 @@ export class TryoutCMSController {
   constructor(
     private readonly tryoutService: TryoutService,
     private readonly tryoutWorkerService: TryoutWorkerService,
-
-  ) { }
+  ) {}
 
   @Get('/')
   async getAllTryouts(@Query('labels') labels: string) {
@@ -62,7 +61,10 @@ export class TryoutCMSController {
 
   @Post('/set/swap')
   async swapTryoutSetOrder(@Body() data: SwapTryoutSetDto) {
-    return await this.tryoutService.swapTryoutSetOrder(data.tryout_set_id_1, data.tryout_set_id_2);
+    return await this.tryoutService.swapTryoutSetOrder(
+      data.tryout_set_id_1,
+      data.tryout_set_id_2,
+    );
   }
 
   @Put('/publish/:tryout_id')
@@ -96,9 +98,7 @@ export class TryoutCMSController {
   }
 
   @Post('/subjects')
-  async createTryoutSubject(
-    @Body() data: CreateSubjectDto,
-  ) {
+  async createTryoutSubject(@Body() data: CreateSubjectDto) {
     return await this.tryoutService.createTryoutSubject(data);
   }
 
@@ -131,13 +131,16 @@ export class TryoutCMSController {
   }
 
   @Post('duplicate/:tryout_id')
-  async duplicateTryout(@Param('tryout_id') tryoutId: string, @Body() { name }: DuplicateTryoutDto) {
+  async duplicateTryout(
+    @Param('tryout_id') tryoutId: string,
+    @Body() { name }: DuplicateTryoutDto,
+  ) {
     return await this.tryoutService.duplicateTryout(tryoutId, name);
   }
 
   @Get('/pdf/set/:set_id')
   async generateTryoutSetPDF(@Param() params: GenerateTryoutSetPDF) {
-      return await this.tryoutService.generateTryoutSetPDF(params.set_id);
+    return await this.tryoutService.generateTryoutSetPDF(params.set_id);
   }
 
   @Delete('/:tryout_id')

@@ -13,94 +13,102 @@ dotenv.config();
 const pg = postgres(process.env.DATABASE_URL);
 
 const db = drizzle(pg, {
-    schema: {
-        questions,
-        options,
-    },
+  schema: {
+    questions,
+    options,
+  },
 });
 
-
 const run = async () => {
-    const opts = await db.select().from(options).execute();
-    const quests = await db.select().from(questions).execute();
+  const opts = await db.select().from(options).execute();
+  const quests = await db.select().from(questions).execute();
 
-    let counter = 0;
+  let counter = 0;
 
-    // migrate the options
-    for (let i = 0; i < opts.length; i++) {
-        const opt = opts[i];
-        console.log(`Migrating options ${counter + 1} of ${opts.length}`);
-        let options = opt.options;
+  // migrate the options
+  for (let i = 0; i < opts.length; i++) {
+    const opt = opts[i];
+    console.log(`Migrating options ${counter + 1} of ${opts.length}`);
+    const options = opt.options;
 
-        let newOptions: Options[] = [];
+    const newOptions: Options[] = [];
 
-        for (let j = 0; j < options.length; j++) {
-            let option = options[j];
+    for (let j = 0; j < options.length; j++) {
+      const option = options[j];
 
-            newOptions.push({
-                content: option.content,
-                id: option.id,
-                is_true: option.is_true,
-                key: option.key,
-                asset: option.asset,
-            });
-        }
-
-        await db.update(questions).set({
-            options: newOptions
-        }).where(eq(questions.id, opt.question_id)).execute();
-
-        counter++;
+      newOptions.push({
+        content: option.content,
+        id: option.id,
+        is_true: option.is_true,
+        key: option.key,
+        asset: option.asset,
+      });
     }
 
-    // migrate the questions
-    for (let i = 0; i < quests.length; i++) {
-        const question = quests[i];
-        const content = question.content;
-        const answer = question.answer;
+    await db
+      .update(questions)
+      .set({
+        options: newOptions,
+      })
+      .where(eq(questions.id, opt.question_id))
+      .execute();
 
-        const newQuestion = [];
-        newQuestion.push({
-            content: content.content,
-            isMedia: false,
-        })
+    counter++;
+  }
 
-        const newAnswer = [];
-        newAnswer.push({
-            content: answer.content,
-            isMedia: false,
-        })
+  // migrate the questions
+  for (let i = 0; i < quests.length; i++) {
+    const question = quests[i];
+    const content = question.content;
+    const answer = question.answer;
 
-        if (content.asset_url) {
-            newQuestion.push({
-                content: content.asset_url,
-                isMedia: true,
-            })
-        }
+    const newQuestion = [];
+    newQuestion.push({
+      content: content.content,
+      isMedia: false,
+    });
 
-        if(answer.asset_url) {
-            newAnswer.push({
-                content: answer.asset_url,
-                isMedia: true,
-            })
-        }
+    const newAnswer = [];
+    newAnswer.push({
+      content: answer.content,
+      isMedia: false,
+    });
 
-        await db.update(questions).set({
-            question: newQuestion,
-            answers: newAnswer,
-        }).where(eq(questions.id, question.id)).execute();
-
-        console.log(`Migrating question ${i + 1} of ${quests.length}`);
+    if (content.asset_url) {
+      newQuestion.push({
+        content: content.asset_url,
+        isMedia: true,
+      });
     }
 
-}
+    if (answer.asset_url) {
+      newAnswer.push({
+        content: answer.asset_url,
+        isMedia: true,
+      });
+    }
 
-run().then(() => {
+    await db
+      .update(questions)
+      .set({
+        question: newQuestion,
+        answers: newAnswer,
+      })
+      .where(eq(questions.id, question.id))
+      .execute();
+
+    console.log(`Migrating question ${i + 1} of ${quests.length}`);
+  }
+};
+
+run()
+  .then(() => {
     console.log('Migration success');
     pg.end();
     process.exit(0);
-}).catch((err) => {
+  })
+  .catch((err) => {
     console.error(err);
     pg.end();
     process.exit(1);
-})
+  });

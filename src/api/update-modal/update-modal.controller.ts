@@ -17,7 +17,7 @@ import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
 @ApiTags("What's New")
 @Controller('update-modals')
 export class UpdateModalController {
-  constructor(private readonly updateModalService: UpdateModalService) { }
+  constructor(private readonly updateModalService: UpdateModalService) {}
 
   @ApiBearerAuth()
   @Get('/')

@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBooleanString, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsBooleanString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { PageOptionsDto } from 'src/common/dtos/page.dtos';
 import { BangCatatanThemeEnum, BangCatatanTipeEnum } from './bang-catatan.enum';
 
@@ -32,7 +38,7 @@ export class CreateBangCatatanDTO {
 
   @ApiProperty({
     example: 'red',
-    enum: BangCatatanThemeEnum
+    enum: BangCatatanThemeEnum,
   })
   @IsEnum(BangCatatanThemeEnum)
   color_pallete: BangCatatanThemeEnum;
@@ -51,7 +57,7 @@ export class CreateBangCatatanDTO {
 
   @ApiProperty({
     example: 'catatan',
-    enum: BangCatatanTipeEnum
+    enum: BangCatatanTipeEnum,
   })
   @IsEnum(BangCatatanTipeEnum)
   note_type: BangCatatanTipeEnum;
@@ -81,7 +87,7 @@ export class GetCatatanTimelineDTO extends PageOptionsDto {
 
   @ApiPropertyOptional({
     example: 'catatan',
-    enum: BangCatatanTipeEnum
+    enum: BangCatatanTipeEnum,
   })
   @IsEnum(BangCatatanTipeEnum)
   @IsOptional()

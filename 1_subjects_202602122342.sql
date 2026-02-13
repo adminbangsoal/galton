@@ -1,0 +1,9 @@
+INSERT INTO public.subjects (id,name,alternate_name,icon,slug,background_illustration,"year") VALUES
+	 ('b20d4bde-e77f-41dd-81bf-496b0b143f36'::uuid,'Penalaran Matematika','Penalaran Matematika','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/pk.png','pm','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/MathOperations.svg','2025'),
+	 ('8b95bee9-a59e-4f47-9092-516bfb59c248'::uuid,'UNDECIDED','UNDECIDED',NULL,NULL,NULL,'2025'),
+	 ('bc51eb46-4fe9-4e88-9db4-4b5242b033a6'::uuid,'Kemampuan Penalaran Umum','PU','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/brain.png','pu','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/LightbulbFilament.svg','2025'),
+	 ('c27104ec-42bc-4f36-8e49-b0416a33c29e'::uuid,'Kemampuan Memahami Bacaan dan Menulis','PBM','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/pbm.png','pbm','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/BookOpenText.svg','2025'),
+	 ('b0bbfc87-0425-4a0a-9c9e-8b09973a115b'::uuid,'Literasi dalam Bahasa Inggris','Literasi dalam Bahasa Inggris','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/pbm.png','lbe','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/England.svg','2025'),
+	 ('73ed675a-c3de-4035-84fa-37fa913af273'::uuid,'Literasi dalam Bahasa Indonesia','Literasi dalam Bahasa Indonesia','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/pbm.png','lbi','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/Indonesia.svg','2025'),
+	 ('40b755aa-c313-44dc-b5d9-25aaaed36f3f'::uuid,'Pengetahuan dan Pemahaman Umum','PPU','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/brain.png','ppu','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/LightbulbFilament.svg','2025'),
+	 ('defb342e-019e-40d1-9b12-9928ea742c8f'::uuid,'Pengetahuan Kuantitatif','PK','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/pk.png','pk','https://bangsoal.s3.ap-southeast-1.amazonaws.com/static/MathOperations.svg','2025');

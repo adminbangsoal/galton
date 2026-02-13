@@ -20,4 +20,4 @@ export const transactionOrders = pgTable('transaction_orders', {
 });
 
 export const SubscriptionsType = transactionOrders.subscription_type.enumValues;
-export type SubscriptionTypeEnum = typeof SubscriptionsType[number];
+export type SubscriptionTypeEnum = (typeof SubscriptionsType)[number];
