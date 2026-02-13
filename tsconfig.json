@@ -20,5 +20,6 @@
     "inlineSources": true,
     "resolveJsonModule": true,
     "sourceRoot": "../src/"
-  }
+  },
+  "include": ["src/**/*"]
 }
