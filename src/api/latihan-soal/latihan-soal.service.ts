@@ -1627,23 +1627,30 @@ export default class LatihanSoalService {
       where: eq(schema.timed_questions.id, timedQuestionId),
     });
 
+    if (!timedQuestion) return false;
     if (timedQuestion.submitted) return false;
 
     let timeLimit = 0;
     // check is the time is already expired
     // check if mode is sequential
     if (timedQuestion.mode === 'sequential') {
-      const { timeLimit: sequentialTimeLimit } =
-        await this.db.query.timed_questions_time_mapping.findFirst({
-          where: eq(
-            schema.timed_questions_time_mapping.subjectId,
-            timedQuestion.subjectId,
-          ),
-          columns: {
-            timeLimit: true,
-          },
-        });
-      timeLimit = sequentialTimeLimit;
+      const timeMapping = await this.db.query.timed_questions_time_mapping.findFirst({
+        where: eq(
+          schema.timed_questions_time_mapping.subjectId,
+          timedQuestion.subjectId,
+        ),
+        columns: {
+          timeLimit: true,
+        },
+      });
+      
+      if (!timeMapping || timeMapping.timeLimit === undefined) {
+        // If no time mapping found, return false or use a default
+        // You may want to adjust this behavior based on your business logic
+        return false;
+      }
+      
+      timeLimit = timeMapping.timeLimit;
     } else if (timedQuestion.mode === 'classic') {
       timeLimit = 11700;
     }
