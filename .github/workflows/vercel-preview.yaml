@@ -1,0 +1,36 @@
+name: Vercel Preview Deployment
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  Deploy-Preview:
+    runs-on: ubuntu-latest
+    environment: github-actions  # Ini penting untuk mengakses environment secrets!
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: pnpm/action-setup@v3.0.0
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8.11.0
+          run_install: false
+      - name: Install Vercel CLI
+        run: pnpm install --global vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+      - name: Build Project Artifacts
+        run: vercel build --token="$VERCEL_TOKEN"
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --token="$VERCEL_TOKEN"

@@ -39,3 +39,4 @@ lerna-debug.log*
 bang-soal-firebase-dev.json
 # Sentry Config File
 .sentryclirc
+.vercel
