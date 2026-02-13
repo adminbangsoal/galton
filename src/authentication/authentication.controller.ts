@@ -38,7 +38,7 @@ export class AuthenticationController {
   @Get('me')
   async getMe(@Req() req: Request) {
     return await this.authenticationService.getMyProfile(
-      (req.user as any).userId as string,
+      req.user!.userId,
     );
   }
 
