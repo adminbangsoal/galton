@@ -43,3 +43,4 @@ bang-soal-firebase-dev.json
 .vercel/*
 .vercel/project.json
 .vercel/project.json.bak
+CHECK_ENV_VARIABLES.md
