@@ -88,6 +88,37 @@ async function bootstrap() {
 }
 
 export default async function handler(req: any, res: any) {
+  // Handle OPTIONS request explicitly before NestJS to avoid 401 from guards
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      res.setHeader('Access-Control-Allow-Origin', origin || '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+      return res.status(204).end();
+    }
+    
+    // In production, check allowed origins
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'https://bangsoal.co.id',
+    ];
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+      return res.status(204).end();
+    }
+    
+    return res.status(403).end();
+  }
+
   try {
     const expressApp = await bootstrap();
     return expressApp(req, res);
