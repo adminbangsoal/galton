@@ -28,15 +28,18 @@ async function bootstrap() {
             'http://localhost:3001',
             'http://127.0.0.1:3000',
             'http://127.0.0.1:3001',
+            'https://francis.nafhan.space', // Explicitly add dev domain
             process.env.FRONTEND_URL || 'http://localhost:3000',
           ];
 
       cachedApp.enableCors({
         origin: (origin, callback) => {
+          // In development, allow all origins for easier debugging
           if (process.env.NODE_ENV !== 'production') {
             return callback(null, true);
           }
           
+          // Allow requests with no origin (like mobile apps or curl requests)
           if (!origin) return callback(null, true);
           
           if (allowedOrigins.indexOf(origin) !== -1) {
@@ -56,6 +59,8 @@ async function bootstrap() {
           'Accept',
           'Origin',
         ],
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
       });
 
       cachedApp.setGlobalPrefix('api');

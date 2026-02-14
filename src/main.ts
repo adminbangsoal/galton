@@ -18,6 +18,7 @@ async function bootstrap() {
         'http://localhost:3001',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
+        'https://francis.nafhan.space', // Explicitly add dev domain
         process.env.FRONTEND_URL || 'http://localhost:3000',
       ];
 
@@ -49,6 +50,8 @@ async function bootstrap() {
       'Accept',
       'Origin',
     ],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   console.log('🚀 Backend server starting on port 8080');
