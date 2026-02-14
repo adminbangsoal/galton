@@ -9,4 +9,9 @@ export class AppController {
   getHealth(): string {
     return this.appService.checkHealth();
   }
+
+  @Get('env-check')
+  checkEnvVariables() {
+    return this.appService.checkEnvVariables();
+  }
 }
