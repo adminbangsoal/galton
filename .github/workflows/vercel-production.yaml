@@ -1,10 +1,8 @@
 name: Vercel Production Deployment
-
 on:
   push:
     branches:
       - main
-
 jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
