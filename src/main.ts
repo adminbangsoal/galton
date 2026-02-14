@@ -12,15 +12,18 @@ async function bootstrap() {
   const allowedOrigins = process.env.NODE_ENV === 'production'
     ? [
         process.env.FRONTEND_URL || 'https://bangsoal.co.id',
-      ]
+        process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
+      ].filter(Boolean).join(',').split(',').map(origin => origin.trim())
     : [
         'http://localhost:3000',
         'http://localhost:3001',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
         'https://francis.nafhan.space', // Explicitly add dev domain
+        'https://galton.nafhan.space', // Allow backend domain as well
         process.env.FRONTEND_URL || 'http://localhost:3000',
-      ];
+        process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
+      ].filter(Boolean);
 
   app.enableCors({
     origin: (origin, callback) => {
