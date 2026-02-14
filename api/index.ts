@@ -16,7 +16,10 @@ async function bootstrap() {
       cachedExpressApp = express();
       const adapter = new ExpressAdapter(cachedExpressApp);
       
-      cachedApp = await NestFactory.create(AppModule, adapter, { cors: true });
+      cachedApp = await NestFactory.create(AppModule, adapter, { 
+        cors: true,
+        logger: process.env.NODE_ENV !== 'production' ? ['error', 'warn', 'log'] : ['error'],
+      });
 
       // CORS configuration
       const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -79,8 +82,13 @@ async function bootstrap() {
       }
 
       await cachedApp.init();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to bootstrap NestJS application:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      // Don't throw, let it be handled by handler
+      cachedApp = null;
+      cachedExpressApp = null;
       throw error;
     }
   }
@@ -90,7 +98,7 @@ async function bootstrap() {
 export default async function handler(req: any, res: any) {
   // Handle OPTIONS request explicitly before NestJS to avoid 401 from guards
   if (req.method === 'OPTIONS') {
-    const origin = req.headers.origin;
+    const origin = req.headers.origin || req.headers.Origin;
     
     // In development, allow all origins
     if (process.env.NODE_ENV !== 'production') {
@@ -99,7 +107,9 @@ export default async function handler(req: any, res: any) {
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-      return res.status(204).end();
+      res.status(204);
+      res.end();
+      return;
     }
     
     // In production, check allowed origins
@@ -113,23 +123,30 @@ export default async function handler(req: any, res: any) {
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-      return res.status(204).end();
+      res.status(204);
+      res.end();
+      return;
     }
     
-    return res.status(403).end();
+    res.status(403);
+    res.end();
+    return;
   }
 
   try {
     const expressApp = await bootstrap();
-    return expressApp(req, res);
-  } catch (error) {
+    expressApp(req, res);
+  } catch (error: any) {
     console.error('Handler error:', error);
-    res.status(500).json({
-      statusCode: 500,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'production' 
-        ? 'Internal server error' 
-        : error.message || String(error),
-    });
+    console.error('Error stack:', error?.stack);
+    if (!res.headersSent) {
+      res.status(500).json({
+        statusCode: 500,
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'production' 
+          ? 'Internal server error' 
+          : error?.message || String(error),
+      });
+    }
   }
 }
