@@ -17,7 +17,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { and, desc, eq, isNotNull } from 'drizzle-orm';
 import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
 import * as dayjs from 'dayjs';
-import { generateRandomString } from 'src/common/lib/utils';
+import { generateRandomString } from '../../common/lib/utils';
 import { S3Service } from 'src/s3/s3.service';
 import { v4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
