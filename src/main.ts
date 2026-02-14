@@ -44,6 +44,7 @@ async function bootstrap() {
       'Authorization', 
       'X-Turing',
       'baggage',
+      'sentry-trace',
       'X-Requested-With',
       'Accept',
       'Origin',
