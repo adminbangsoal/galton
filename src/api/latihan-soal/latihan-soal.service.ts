@@ -30,7 +30,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { S3Service } from '../../s3/s3.service';
 import { truncateLatexText } from '../../common/lib/utils';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
 import { FirebaseService } from '../../database/firebase/firebase.service';
 import { v4 } from 'uuid';

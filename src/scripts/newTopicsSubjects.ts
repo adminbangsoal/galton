@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { subjects, topics } from '../database/schema';
 import { eq } from 'drizzle-orm';
 import * as subjectMapping from './data/subject_mapping_v2.json';

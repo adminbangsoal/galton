@@ -23,7 +23,7 @@ import {
 } from 'drizzle-orm';
 import { v4 } from 'uuid';
 import { TRYOUT_SUBJECT_TIME_MAPPING } from './tryout-cms.data';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import TryoutWorkerService from '../../workers/tryout/tryout.service';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { OnModuleInit } from '@nestjs/common';

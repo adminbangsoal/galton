@@ -10,7 +10,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import * as schema from '../../database/schema';
 import { and, eq, sql, asc, gt, desc, or } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { TryoutProgressEnum } from './tryout.enum';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';

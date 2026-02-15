@@ -3,7 +3,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import * as schema from '../../database/schema';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import UsersService from '../users/users.service';
 import { S3Service } from '../../s3/s3.service';
 import 'dayjs/locale/id';

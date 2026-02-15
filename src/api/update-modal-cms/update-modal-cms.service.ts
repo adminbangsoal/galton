@@ -9,7 +9,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import * as schema from '../../database/schema';
 import { and, eq, sql, asc, gt, lt, desc, lte } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CreateUpdateModalDto } from './update-modal-cms.dto';
 
 @Injectable()

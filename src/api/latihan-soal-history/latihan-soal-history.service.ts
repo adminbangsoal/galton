@@ -3,7 +3,7 @@ import { eq, gte, or, lte, and, isNotNull, desc, sql } from 'drizzle-orm';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import * as schema from '../../database/schema';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { truncateLatexText } from '../../common/lib/utils';
 import LatihanSoalService from '../latihan-soal/latihan-soal.service';
 import { LatihanSoalSummary } from '../latihan-soal/latihan-soal.type';

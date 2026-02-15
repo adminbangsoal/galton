@@ -16,7 +16,7 @@ import * as schema from '../../database/schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { and, desc, eq, isNotNull } from 'drizzle-orm';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { generateRandomString } from '../../common/lib/utils';
 import { S3Service } from '../../s3/s3.service';
 import { v4 } from 'uuid';

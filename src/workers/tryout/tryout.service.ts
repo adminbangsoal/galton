@@ -3,7 +3,7 @@ import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import * as schema from '../../database/schema';
 import { eq, sql, inArray, and } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { Cron, CronExpression } from '@nestjs/schedule';

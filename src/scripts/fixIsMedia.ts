@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { questions } from '../database/schema';
 import { eq } from 'drizzle-orm';
 

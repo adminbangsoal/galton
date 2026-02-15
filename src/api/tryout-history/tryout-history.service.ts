@@ -22,7 +22,7 @@ import {
   inArray,
   isNotNull,
 } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { S3Service } from '../../s3/s3.service';
 import * as constant from './tryout-history.constant';
 import UsersService from '../users/users.service';

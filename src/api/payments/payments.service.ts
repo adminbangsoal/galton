@@ -5,7 +5,7 @@ import { SUBSCRIPTION_PRICE } from './data/price';
 import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import * as schema from '../../database/schema';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { eq } from 'drizzle-orm';
 import ReferralService from '../referral/referral.service';
 import { PgInsertValue } from 'drizzle-orm/pg-core';
