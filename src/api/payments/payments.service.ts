@@ -77,20 +77,31 @@ export default class PaymentsService {
       },
     };
 
-    const serverKey = Buffer.from(
-      this.configService.get('MIDTRANS_SERVER_KEY'),
-    ).toString('base64');
+    const serverKey = this.configService.get('MIDTRANS_SERVER_KEY');
+    if (!serverKey) {
+      throw new Error('MIDTRANS_SERVER_KEY is not set');
+    }
 
+    const nodeEnv = this.configService.get('NODE_ENV') || 'development';
     const midtransUrl =
-      this.configService.get('NODE_ENV') === 'production'
+      nodeEnv === 'production'
         ? 'https://app.midtrans.com/snap/v1/transactions'
         : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+
+    // Base64 encode server key for Basic Auth
+    const encodedServerKey = Buffer.from(serverKey).toString('base64');
+
+    console.log('Midtrans Config:', {
+      nodeEnv,
+      midtransUrl,
+      serverKeyPrefix: serverKey.substring(0, 10) + '...',
+    });
 
     try {
       const { data } = await axios.post(midtransUrl, params, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Basic ${serverKey}`,
+          Authorization: `Basic ${encodedServerKey}`,
           'Content-Type': 'application/json',
         },
       });
