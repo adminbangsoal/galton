@@ -2,7 +2,7 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import AcademicStatisticService from './academic-statistic.service';
 import { AcademicStatisticDTO } from './academic-statistic.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 
 @ApiTags('Academic Statistic')
 @UseGuards(TuringGuard)

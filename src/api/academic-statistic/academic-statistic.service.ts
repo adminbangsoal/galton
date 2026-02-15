@@ -1,11 +1,11 @@
-import { PointHistory } from 'src/database/firebase/firebase.model';
+import { PointHistory } from '../../database/firebase/firebase.model';
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { FirebaseService } from 'src/database/firebase/firebase.service';
-import * as schema from 'src/database/schema';
+import { FirebaseService } from '../../database/firebase/firebase.service';
+import * as schema from '../../database/schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { and, eq, gt, or, sql } from 'drizzle-orm';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 
 @Injectable()
 export default class AcademicStatisticService {
