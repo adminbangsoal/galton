@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import {
   RegisterDto,
@@ -19,12 +27,16 @@ export class AuthenticationController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return await this.authenticationService.register(registerDto);
+    throw new BadRequestException(
+      'Sign up manual sudah dinonaktifkan. Silakan gunakan Google Sign In.',
+    );
   }
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    return await this.authenticationService.login(loginDto);
+    throw new BadRequestException(
+      'Sign in manual sudah dinonaktifkan. Silakan gunakan Google Sign In.',
+    );
   }
 
   @Post('google')
@@ -44,11 +56,15 @@ export class AuthenticationController {
 
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return await this.authenticationService.forgotPassword(forgotPasswordDto);
+    throw new BadRequestException(
+      'Fitur lupa password sudah dinonaktifkan. Silakan gunakan Google Sign In.',
+    );
   }
 
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return await this.authenticationService.resetPassword(resetPasswordDto);
+    throw new BadRequestException(
+      'Fitur reset password sudah dinonaktifkan. Silakan gunakan Google Sign In.',
+    );
   }
 }
