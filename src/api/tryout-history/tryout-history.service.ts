@@ -8,8 +8,8 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 import {
   and,
   eq,
@@ -23,12 +23,12 @@ import {
   isNotNull,
 } from 'drizzle-orm';
 import * as dayjs from 'dayjs';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from '../../s3/s3.service';
 import * as constant from './tryout-history.constant';
 import UsersService from '../users/users.service';
 import { Cache } from 'cache-manager';
 import { SubjectAnalyticType, TotalUsersOfOption } from './tryout-history.type';
-import TryoutWorkerService from 'src/workers/tryout/tryout.service';
+import TryoutWorkerService from '../../workers/tryout/tryout.service';
 import axios from 'axios';
 
 @Injectable()

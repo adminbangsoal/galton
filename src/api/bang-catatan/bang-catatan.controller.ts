@@ -24,7 +24,7 @@ import {
 import BangCatatanService from './bang-catatan.service';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from '../../s3/s3.service';
 
 @ApiTags('Bang Catatan')
 @Controller('catatan')

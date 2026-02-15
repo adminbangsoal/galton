@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { eq, and, not } from 'drizzle-orm';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 
 @Injectable()
 export class SubjectsService {

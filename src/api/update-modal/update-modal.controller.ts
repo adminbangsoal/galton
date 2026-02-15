@@ -12,7 +12,7 @@ import {
 import { Request } from 'express';
 import UpdateModalService from './update-modal.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 
 @ApiTags("What's New")
 @Controller('update-modals')

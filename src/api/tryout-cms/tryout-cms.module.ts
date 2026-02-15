@@ -3,7 +3,7 @@ import { TryoutCMSController } from './tryout-cms.controller';
 
 import { drizzleProvider } from '../..//database/drizzle/drizzle.provider';
 import TryoutCMSService from './tryout-cms.service';
-import { TryoutWorkerModule } from 'src/workers/tryout/tryout.module';
+import { TryoutWorkerModule } from '../../workers/tryout/tryout.module';
 import { SupabaseService } from '../../database/supabase/supabase.service';
 import { SupabaseModule } from '../../database/supabase/supabase.module';
 

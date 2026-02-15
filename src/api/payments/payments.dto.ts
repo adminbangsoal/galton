@@ -3,7 +3,7 @@ import { IsEnum, IsOptional } from 'class-validator';
 import {
   SubscriptionTypeEnum,
   SubscriptionsType,
-} from 'src/database/schema/transaction-orders.schema';
+} from '../../database/schema/transaction-orders.schema';
 
 export class CreateSnapDto {
   @ApiProperty({

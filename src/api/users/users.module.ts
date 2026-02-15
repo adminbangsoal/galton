@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
 import UsersService from './users.service';
 import UsersController from './users.controller';
-import { FirebaseModule } from 'src/database/firebase/firebase.module';
-import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
-import { S3Module } from 'src/s3/s3.module';
+import { FirebaseModule } from '../../database/firebase/firebase.module';
+import { drizzleProvider } from '../../database/drizzle/drizzle.provider';
+import { S3Module } from '../../s3/s3.module';
 
 @Global()
 @Module({

@@ -11,7 +11,7 @@ import {
   IsUrl,
   IsIn,
 } from 'class-validator';
-import { questionTypes } from 'src/database/schema';
+import { questionTypes } from '../../database/schema';
 
 export class LatihanSoalQuery {
   @ApiProperty({

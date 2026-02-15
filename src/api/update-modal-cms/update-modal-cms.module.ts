@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UpdateModalCMSController } from './update-modal-cms.controller';
 
-import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
+import { drizzleProvider } from '../../database/drizzle/drizzle.provider';
 import UpdateModalCMSService from './update-modal-cms.service';
 
 @Module({

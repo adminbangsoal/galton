@@ -1,5 +1,5 @@
-import { TryoutTypeEnum } from 'src/api/tryout-cms/tryout-cms.enum';
-import { Options } from 'src/database/schema';
+import { TryoutTypeEnum } from '../../api/tryout-cms/tryout-cms.enum';
+import { Options } from '../../database/schema';
 
 export type QuestionType = {
   id: string;

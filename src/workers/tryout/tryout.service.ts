@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 import { eq, sql, inArray, and } from 'drizzle-orm';
 import * as dayjs from 'dayjs';
 import { InjectRedis } from '@nestjs-modules/ioredis';
@@ -10,7 +10,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { QuestionAttemptType, QuestionType } from './tryout.type';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { TryoutTypeEnum } from 'src/api/tryout-cms/tryout-cms.enum';
+import { TryoutTypeEnum } from '../../api/tryout-cms/tryout-cms.enum';
 
 @Injectable()
 class TryoutWorkerService {

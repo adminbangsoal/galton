@@ -12,7 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { Request } from 'express';
 import UsersService from './users.service';
 import {
@@ -22,7 +22,7 @@ import {
 } from './users.dto';
 import { OnboardingGuard } from './guards/onboarding.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MaxFileSize } from 'src/common/pipes/maxFilesSizeValidator.pipes';
+import { MaxFileSize } from '../../common/pipes/maxFilesSizeValidator.pipes';
 
 @ApiTags('Users')
 @Controller('users')

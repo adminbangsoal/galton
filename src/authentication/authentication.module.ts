@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
-import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
+import { drizzleProvider } from '../../database/drizzle/drizzle.provider';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import SESModule from 'src/ses/ses.module';
-import { FirebaseModule } from 'src/database/firebase/firebase.module';
+import SESModule from '../../ses/ses.module';
+import { FirebaseModule } from '../../database/firebase/firebase.module';
 
 @Module({
   imports: [

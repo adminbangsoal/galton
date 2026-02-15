@@ -18,8 +18,8 @@ import {
   not,
 } from 'drizzle-orm';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 import {
   AttemptQuestionDto,
   AttemptTimedQuestionDTO,
@@ -28,14 +28,14 @@ import {
 } from './latihan-soal.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { S3Service } from 'src/s3/s3.service';
-import { truncateLatexText } from 'src/common/lib/utils';
+import { S3Service } from '../../s3/s3.service';
+import { truncateLatexText } from '../../common/lib/utils';
 import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
-import { FirebaseService } from 'src/database/firebase/firebase.service';
+import { FirebaseService } from '../../database/firebase/firebase.service';
 import { v4 } from 'uuid';
 import { LatihanSoalSummary } from './latihan-soal.type';
-import { Content, Question } from 'src/database/schema';
+import { Content, Question } from '../../database/schema';
 
 type CachedQuestion = {
   id: string;
