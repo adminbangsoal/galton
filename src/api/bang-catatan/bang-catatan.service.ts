@@ -10,14 +10,14 @@ import {
   GetCatatanTimelineDTO,
   ReportCatatanDTO,
 } from './bang-catatan.dto';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from 'src/database/schema';
+import * as schema from '../../database/schema';
 import { and, eq, inArray, like, or, sql, desc, notInArray } from 'drizzle-orm';
-import { S3Service } from 'src/s3/s3.service';
-import { FirebaseService } from 'src/database/firebase/firebase.service';
-import { PageDto, PageMetaDto } from 'src/common/dtos/page.dtos';
-import SESService from 'src/ses/ses.service';
+import { S3Service } from '../../s3/s3.service';
+import { FirebaseService } from '../../database/firebase/firebase.service';
+import { PageDto, PageMetaDto } from '../../common/dtos/page.dtos';
+import SESService from '../../ses/ses.service';
 
 @Injectable()
 class BangCatatanService {
