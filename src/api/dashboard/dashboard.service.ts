@@ -326,6 +326,8 @@ export class DashboardService {
       .where(eq(schema.users.id, userId))
       .execute();
 
+    // Get latest transaction order for user
+    // Join with transaction to check if payment is settled
     const subscription = await this.db
       .select()
       .from(schema.transactionOrders)
@@ -333,13 +335,8 @@ export class DashboardService {
         schema.transactions,
         eq(schema.transactions.order_id, schema.transactionOrders.id),
       )
-      .where(
-        and(
-          eq(schema.transactionOrders.user_id, userId),
-          eq(schema.transactions.user_id, userId),
-        ),
-      )
-      .orderBy(desc(schema.transactions.timestamp))
+      .where(eq(schema.transactionOrders.user_id, userId))
+      .orderBy(desc(schema.transactionOrders.timestamp))
       .limit(1)
       .execute();
 
@@ -353,6 +350,18 @@ export class DashboardService {
     }
 
     const isExpired = dayjs(result[0].validity_date).isBefore(dayjs());
+    
+    // Check if subscription has settled transaction or validity_date is updated
+    // Show subscription if:
+    // 1. Has transaction_order
+    // 2. And (has settled transaction OR validity_date is after onboard_date + 1 day)
+    const hasSettledTransaction = subscription.length > 0 && 
+      subscription[0].transactions && 
+      subscription[0].transactions.metadata?.transaction_status === 'settlement';
+    
+    // Check if validity_date is updated (means payment was processed)
+    const validityUpdated = result[0].validity_date && 
+      dayjs(result[0].validity_date).isAfter(dayjs(result[0].onboard_date || result[0].validity_date).add(1, 'day'));
 
     const res = {
       name: result[0].full_name,
@@ -361,7 +370,7 @@ export class DashboardService {
       point: (await this.userService.getMyPoints(userId)).totalPoints,
       highschool: result[0].highschool,
       subscription:
-        subscription.length > 0 && !isExpired
+        subscription.length > 0 && !isExpired && (hasSettledTransaction || validityUpdated)
           ? subscription[0].transaction_orders
           : null,
       validity: {
