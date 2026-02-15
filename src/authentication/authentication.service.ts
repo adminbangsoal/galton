@@ -6,8 +6,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
-import * as schema from '../../database/schema';
+import { DrizzleAsyncProvider } from '../database/drizzle/drizzle.provider';
+import * as schema from '../database/schema';
 import {
   RegisterDto,
   LoginDto,
@@ -21,8 +21,8 @@ import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import SESService from '../../ses/ses.service';
-import { FirebaseService } from '../../database/firebase/firebase.service';
+import SESService from '../ses/ses.service';
+import { FirebaseService } from '../database/firebase/firebase.service';
 import { randomBytes } from 'crypto';
 
 @Injectable()
