@@ -355,9 +355,12 @@ export class DashboardService {
     // Show subscription if:
     // 1. Has transaction_order
     // 2. And (has settled transaction OR validity_date is after onboard_date + 1 day)
-    const hasSettledTransaction = subscription.length > 0 && 
-      subscription[0].transactions && 
-      subscription[0].transactions.metadata?.transaction_status === 'settlement';
+    const transactionMetadata = subscription.length > 0 && subscription[0].transactions
+      ? (subscription[0].transactions.metadata as Record<string, any>)
+      : null;
+    
+    const hasSettledTransaction = transactionMetadata && 
+      transactionMetadata.transaction_status === 'settlement';
     
     // Check if validity_date is updated (means payment was processed)
     const validityUpdated = result[0].validity_date && 
