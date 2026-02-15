@@ -359,8 +359,12 @@ export class DashboardService {
       ? (subscription[0].transactions.metadata as Record<string, any>)
       : null;
     
+    // Accept both 'capture' and 'settlement' as valid payment status
+    // 'capture' = payment successful but not yet settled (credit card)
+    // 'settlement' = payment fully settled
     const hasSettledTransaction = transactionMetadata && 
-      transactionMetadata.transaction_status === 'settlement';
+      (transactionMetadata.transaction_status === 'settlement' ||
+       transactionMetadata.transaction_status === 'capture');
     
     // Check if validity_date is updated (means payment was processed)
     const validityUpdated = result[0].validity_date && 
