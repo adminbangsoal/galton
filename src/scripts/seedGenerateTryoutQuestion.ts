@@ -10,7 +10,7 @@ import {
   tryout_questions,
   tryout_subjects,
 } from '../database/schema/tryouts.schema';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { ConfigService } from '@nestjs/config';
 const dotenv = require('dotenv');
 

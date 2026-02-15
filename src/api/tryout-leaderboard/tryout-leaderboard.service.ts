@@ -4,11 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import * as schema from 'src/database/schema';
+import * as schema from '../../database/schema';
 import { and, desc, eq, inArray, lte, ne } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 @Injectable()
 class TryoutLeaderboardService {

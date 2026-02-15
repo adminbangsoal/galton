@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { transactionOrders, users, transactions } from '../database/schema';
 import { desc, eq } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 const subscriptionsTypeValue = {
   pemula: 30,

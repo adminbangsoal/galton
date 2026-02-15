@@ -17,7 +17,7 @@ import {
   CreateUpdateModalDto,
   DeleteUpdateModalDto,
 } from './update-modal-cms.dto';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 
 @ApiTags("What's New CMS")
 @UseGuards(TuringGuard)

@@ -10,7 +10,7 @@ import {
 import { Request } from 'express';
 import { JwtAuthGuard } from './guard/jwt.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { OnboardingGuard } from 'src/api/users/guards/onboarding.guard';
+import { OnboardingGuard } from '../api/users/guards/onboarding.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')

@@ -22,7 +22,7 @@ import {
   TryoutQueryDto,
   UpdateTryoutSetCurrentQuestionDto,
 } from './tryout.dto';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 
 @ApiTags('Tryout')
 @Controller('tryouts')

@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import {
   tryout_subjects,
   tryout_attempts,
@@ -8,7 +8,7 @@ import {
   tryouts,
   tryout_questions,
 } from '../database/schema';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import { faker } from '@faker-js/faker';

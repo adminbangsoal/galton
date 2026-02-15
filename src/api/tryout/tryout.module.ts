@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TryoutController } from './tryout.controller';
 
-import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
+import { drizzleProvider } from '../../database/drizzle/drizzle.provider';
 import TryoutService from './tryout.service';
 
 @Module({

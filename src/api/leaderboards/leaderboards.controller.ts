@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { LeaderboardService } from './leaderboards.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { Request } from 'express';
 
 @ApiTags('Leaderboards')

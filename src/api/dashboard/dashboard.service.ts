@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import UsersService from '../users/users.service';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from '../../s3/s3.service';
 import 'dayjs/locale/id';
-import { capitalizeFirstLetter } from 'src/common/lib/utils';
+import { capitalizeFirstLetter } from '../../common/lib/utils';
 import LatihanSoalService from '../latihan-soal/latihan-soal.service';
-import { Question } from 'src/database/schema';
+import { Question } from '../../database/schema';
 
 @Injectable()
 export class DashboardService {

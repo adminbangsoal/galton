@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { DashboardService } from './dashboard.service';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';

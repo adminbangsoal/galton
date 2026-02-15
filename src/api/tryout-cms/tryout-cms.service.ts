@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
 import {
   CreateSubjectDto,
   CreateTryoutDto,
@@ -23,8 +23,8 @@ import {
 } from 'drizzle-orm';
 import { v4 } from 'uuid';
 import { TRYOUT_SUBJECT_TIME_MAPPING } from './tryout-cms.data';
-import * as dayjs from 'dayjs';
-import TryoutWorkerService from 'src/workers/tryout/tryout.service';
+import dayjs from 'dayjs';
+import TryoutWorkerService from '../../workers/tryout/tryout.service';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { OnModuleInit } from '@nestjs/common';
 

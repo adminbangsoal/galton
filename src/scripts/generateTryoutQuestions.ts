@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { S3Service } from '../s3/s3.service';
 import { Question, questions, subjects, topics } from '../database/schema';
 import axios, { AxiosError } from 'axios';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { PgSelect } from 'drizzle-orm/pg-core';
 import { ConfigService } from '@nestjs/config';
 const dotenv = require('dotenv');

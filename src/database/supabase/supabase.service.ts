@@ -10,7 +10,7 @@ export class SupabaseService implements OnModuleInit {
       process.env.SUPABASE_KEY || 'placeholder-key',
     );
   }
-  
+
   getClient(): SupabaseClient {
     return this.supabase;
   }

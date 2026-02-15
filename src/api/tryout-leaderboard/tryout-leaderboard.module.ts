@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TryoutLeaderboardController } from './tryout-leaderboard.controller';
 
-import { drizzleProvider } from 'src/database/drizzle/drizzle.provider';
+import { drizzleProvider } from '../../database/drizzle/drizzle.provider';
 import TryoutLeaderboardService from './tryout-leaderboard.service';
-import { S3Module } from 'src/s3/s3.module';
+import { S3Module } from '../../s3/s3.module';
 
 @Module({
   imports: [S3Module],

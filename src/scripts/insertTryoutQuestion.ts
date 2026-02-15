@@ -1,6 +1,6 @@
 import { eq, and, sql, inArray, gte, ne, notInArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { tryout_questions } from '../../src/database/schema';
 import * as toQuestions from './data/insert_tryout_prod.json';
 

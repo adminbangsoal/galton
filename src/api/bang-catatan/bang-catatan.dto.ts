@@ -6,7 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { PageOptionsDto } from 'src/common/dtos/page.dtos';
+import { PageOptionsDto } from '../../common/dtos/page.dtos';
 import { BangCatatanThemeEnum, BangCatatanTipeEnum } from './bang-catatan.enum';
 
 export class CreateBangCatatanDTO {

@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { Request } from 'express';
 import { LatihanSoalHistoryService } from './latihan-soal-history.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';

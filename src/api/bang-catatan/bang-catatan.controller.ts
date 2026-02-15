@@ -15,7 +15,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import {
   CreateBangCatatanDTO,
   GetCatatanTimelineDTO,
@@ -24,7 +24,7 @@ import {
 import BangCatatanService from './bang-catatan.service';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from '../../s3/s3.service';
 
 @ApiTags('Bang Catatan')
 @Controller('catatan')

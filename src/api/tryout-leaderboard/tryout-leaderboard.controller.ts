@@ -11,8 +11,8 @@ import {
 import { Request } from 'express';
 import TryoutLeaderboardService from './tryout-leaderboard.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 
 @ApiTags('Tryout Leaderboard')
 @Controller('tryout-leaderboard')

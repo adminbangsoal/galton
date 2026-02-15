@@ -51,22 +51,13 @@ import SubjectsCmsModule from './api/subjects-cms/subjects-cms-module';
     CacheModule.register({
       isGlobal: true,
       store: redisStore,
-      url: process.env.REDIS_URL,
+      url: process.env.CACHE_URL || process.env.REDIS_URL,
     }),
-    RedisModule.forRoot(
-      process.env.CACHE_URL
-        ? {
-            config: {
-              url: process.env.CACHE_URL,
-            },
-          }
-        : {
-            config: {
-              url: 'redis://127.0.0.1:6379',
-              password: process.env.REDIS_PASSWORD,
-            },
-          },
-    ),
+    RedisModule.forRoot({
+      config: {
+        url: process.env.CACHE_URL || process.env.REDIS_URL,
+      },
+    }),
     AuthenticationModule,
     UsersModule,
     DrizzleModule,

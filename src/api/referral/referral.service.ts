@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as schema from 'src/database/schema';
-import * as dayjs from 'dayjs';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import * as schema from '../../database/schema';
+import dayjs from 'dayjs';
 
 @Injectable()
 export default class ReferralService {

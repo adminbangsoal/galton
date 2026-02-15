@@ -11,13 +11,13 @@ import {
 import { Request } from 'express';
 import TryoutHistoryService from './tryout-history.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import {
   AddFeedbackDto,
   AddQuestionNoteDto,
   JobDto,
 } from './tryout-history.dto';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 
 @ApiTags('Tryout History')
 @Controller('tryout-history')

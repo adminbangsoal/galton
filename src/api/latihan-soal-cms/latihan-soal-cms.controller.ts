@@ -7,10 +7,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 import LatihanSoalCmsService from './latihan-soal-cms.service';
 import { UpdateLatihanSoalDTO } from '../latihan-soal/latihan-soal.dto';
-import { LargePageOptionsDto } from 'src/common/dtos/page.dtos';
+import { LargePageOptionsDto } from '../../common/dtos/page.dtos';
 
 @UseGuards(TuringGuard)
 @Controller('latihan-soal-cms')

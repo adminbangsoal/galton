@@ -6,19 +6,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PointHistory } from 'src/database/firebase/firebase.model';
-import { FirebaseService } from 'src/database/firebase/firebase.service';
+import { PointHistory } from '../../database/firebase/firebase.model';
+import { FirebaseService } from '../../database/firebase/firebase.service';
 import { Cache } from 'cache-manager';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Redis } from 'ioredis';
 import { OnboardingDto, UpdateUserProfileDto } from './users.dto';
-import * as schema from 'src/database/schema';
+import * as schema from '../../database/schema';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { and, desc, eq, isNotNull } from 'drizzle-orm';
-import { DrizzleAsyncProvider } from 'src/database/drizzle/drizzle.provider';
-import * as dayjs from 'dayjs';
-import { generateRandomString } from 'src/common/lib/utils';
-import { S3Service } from 'src/s3/s3.service';
+import { DrizzleAsyncProvider } from '../../database/drizzle/drizzle.provider';
+import dayjs from 'dayjs';
+import { generateRandomString } from '../../common/lib/utils';
+import { S3Service } from '../../s3/s3.service';
 import { v4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
 

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 import { drizzle } from 'drizzle-orm/postgres-js';
-import * as postgres from 'postgres';
+import postgres from 'postgres';
 import { subjects, questions } from '../database/schema';
 import axios from 'axios';
 import { sql } from 'drizzle-orm';

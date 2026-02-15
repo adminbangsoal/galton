@@ -10,7 +10,7 @@ import PaymentsService from './payments.service';
 import { CreateSnapDto } from './payments.dto';
 
 import { OnboardingGuard } from '../users/guards/onboarding.guard';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 

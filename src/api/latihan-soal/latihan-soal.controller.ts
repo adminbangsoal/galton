@@ -33,7 +33,7 @@ import {
   LatihanSoalQuery,
 } from './latihan-soal.dto';
 import LatihanSoalService from './latihan-soal.service';
-import { JwtAuthGuard } from 'src/authentication/guard/jwt.guard';
+import { JwtAuthGuard } from '../../authentication/guard/jwt.guard';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('Latihan Soal')
