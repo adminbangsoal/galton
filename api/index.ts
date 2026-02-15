@@ -5,10 +5,10 @@ import TransformResponseInterceptor from '../src/common/interceptors/transform-r
 import { HttpErrorFilter } from '../src/common/filters/http-error.filters';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import * as express from 'express';
+import express, { type Express } from 'express';
 
 let cachedApp: any;
-let cachedExpressApp: express.Express;
+let cachedExpressApp: Express;
 
 async function bootstrap() {
   if (!cachedApp || !cachedExpressApp) {
