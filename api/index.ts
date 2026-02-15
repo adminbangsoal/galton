@@ -25,6 +25,7 @@ async function bootstrap() {
       const allowedOrigins = process.env.NODE_ENV === 'production'
         ? [
             process.env.FRONTEND_URL || 'https://bangsoal.co.id',
+            'https://francis.nafhan.space', // Add Francis frontend domain
           ]
         : [
             'http://localhost:3000',
@@ -115,6 +116,7 @@ export default async function handler(req: any, res: any) {
     // In production, check allowed origins
     const allowedOrigins = [
       process.env.FRONTEND_URL || 'https://bangsoal.co.id',
+      'https://francis.nafhan.space', // Add Francis frontend domain
     ];
     
     if (origin && allowedOrigins.includes(origin)) {
