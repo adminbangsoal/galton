@@ -13,6 +13,7 @@ async function bootstrap() {
     process.env.NODE_ENV === 'production'
       ? [
           process.env.FRONTEND_URL || 'https://bangsoal.co.id',
+          'https://francis.nafhan.space', // Add Francis frontend domain
           process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
         ]
           .filter(Boolean)
