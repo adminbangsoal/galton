@@ -82,19 +82,25 @@ export default class PaymentsService {
       throw new Error('MIDTRANS_SERVER_KEY is not set');
     }
 
-    const nodeEnv = this.configService.get('NODE_ENV') || 'development';
-    const midtransUrl =
-      nodeEnv === 'production'
-        ? 'https://app.midtrans.com/snap/v1/transactions'
-        : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+    // Force check NODE_ENV - default to development for sandbox
+    // Vercel might set NODE_ENV=production by default, so we check for explicit 'production'
+    const nodeEnv = this.configService.get('NODE_ENV');
+    const isProduction = nodeEnv === 'production' && nodeEnv !== undefined;
+    
+    // For sandbox, use sandbox URL unless explicitly set to production
+    const midtransUrl = isProduction
+      ? 'https://app.midtrans.com/snap/v1/transactions'
+      : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
     // Base64 encode server key for Basic Auth
     const encodedServerKey = Buffer.from(serverKey).toString('base64');
 
     console.log('Midtrans Config:', {
       nodeEnv,
+      isProduction,
       midtransUrl,
       serverKeyPrefix: serverKey.substring(0, 10) + '...',
+      serverKeyStartsWith: serverKey.startsWith('SB-Mid-server') ? 'Sandbox' : 'Production',
     });
 
     try {
