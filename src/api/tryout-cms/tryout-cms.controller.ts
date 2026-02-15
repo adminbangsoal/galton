@@ -22,7 +22,7 @@ import {
   UpdateTryoutDto,
   UpdateTryoutQuestionDto,
 } from './tryout-cms.dto';
-import { TuringGuard } from 'src/authentication/guard/turing.guard';
+import { TuringGuard } from '../../authentication/guard/turing.guard';
 import TryoutWorkerService from 'src/workers/tryout/tryout.service';
 
 @ApiTags('Tryout CMS')
