@@ -26,7 +26,8 @@ async function bootstrap() {
           'http://127.0.0.1:3000',
           'http://127.0.0.1:3001',
           'https://francis.nafhan.space', // Explicitly add dev domain
-          'https://galton.nafhan.space', // Allow backend domain as well
+          'https://galton.nafhan.space', // Allow backend domain as well,
+          'https://api.bangsoal.co.id',
           process.env.FRONTEND_URL || 'http://localhost:3000',
           process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
         ].filter(Boolean);
