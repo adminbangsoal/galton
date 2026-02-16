@@ -24,17 +24,21 @@ async function bootstrap() {
       // CORS configuration
       const allowedOrigins = process.env.NODE_ENV === 'production'
         ? [
-            process.env.FRONTEND_URL || 'https://bangsoal.co.id',
-            'https://francis.nafhan.space', // Add Francis frontend domain
-          ]
+            'https://bangsoal.co.id',
+            'https://www.bangsoal.co.id',
+            process.env.FRONTEND_URL,
+            'https://francis.nafhan.space',
+          ].filter(Boolean)
         : [
             'http://localhost:3000',
             'http://localhost:3001',
             'http://127.0.0.1:3000',
             'http://127.0.0.1:3001',
-            'https://francis.nafhan.space', // Explicitly add dev domain
+            'https://francis.nafhan.space',
+            'https://bangsoal.co.id',
+            'https://www.bangsoal.co.id',
             process.env.FRONTEND_URL || 'http://localhost:3000',
-          ];
+          ].filter(Boolean);
 
       cachedApp.enableCors({
         origin: (origin, callback) => {
@@ -46,9 +50,10 @@ async function bootstrap() {
           // Allow requests with no origin (like mobile apps or curl requests)
           if (!origin) return callback(null, true);
           
-          if (allowedOrigins.indexOf(origin) !== -1) {
+          if (allowedOrigins.includes(origin)) {
             callback(null, true);
           } else {
+            console.warn(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
             callback(new Error('Not allowed by CORS'));
           }
         },
@@ -59,6 +64,7 @@ async function bootstrap() {
           'Authorization', 
           'X-Turing',
           'baggage',
+          'sentry-trace',
           'X-Requested-With',
           'Accept',
           'Origin',
@@ -96,52 +102,70 @@ async function bootstrap() {
   return cachedExpressApp;
 }
 
+// Helper function to get allowed origins
+function getAllowedOrigins(): string[] {
+  return process.env.NODE_ENV === 'production'
+    ? [
+        'https://bangsoal.co.id',
+        'https://www.bangsoal.co.id',
+        process.env.FRONTEND_URL,
+        'https://francis.nafhan.space',
+      ].filter(Boolean)
+    : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
+        'https://francis.nafhan.space',
+        'https://bangsoal.co.id',
+        'https://www.bangsoal.co.id',
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+}
+
+// Helper function to set CORS headers
+function setCorsHeaders(res: any, origin: string | undefined) {
+  const allowedOrigins = getAllowedOrigins();
+  
+  if (process.env.NODE_ENV !== 'production') {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  } else if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+}
+
 export default async function handler(req: any, res: any) {
+  const origin = req.headers.origin || req.headers.Origin;
+
   // Handle OPTIONS request explicitly before NestJS to avoid 401 from guards
   if (req.method === 'OPTIONS') {
-    const origin = req.headers.origin || req.headers.Origin;
-    
-    // In development, allow all origins
-    if (process.env.NODE_ENV !== 'production') {
-      res.setHeader('Access-Control-Allow-Origin', origin || '*');
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-      res.status(204);
-      res.end();
-      return;
-    }
-    
-    // In production, check allowed origins
-    const allowedOrigins = [
-      process.env.FRONTEND_URL || 'https://bangsoal.co.id',
-      'https://francis.nafhan.space', // Add Francis frontend domain
-    ];
-    
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-      res.status(204);
-      res.end();
-      return;
-    }
-    
-    res.status(403);
+    setCorsHeaders(res, origin);
+    res.status(204);
     res.end();
     return;
   }
 
   try {
     const expressApp = await bootstrap();
+    
+    // Set CORS headers before processing request
+    setCorsHeaders(res, origin);
     expressApp(req, res);
   } catch (error: any) {
     console.error('Handler error:', error);
     console.error('Error stack:', error?.stack);
     if (!res.headersSent) {
+      // Set CORS headers even on error
+      setCorsHeaders(res, origin);
+      
       res.status(500).json({
         statusCode: 500,
         message: 'Internal server error',
