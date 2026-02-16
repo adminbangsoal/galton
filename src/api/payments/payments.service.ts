@@ -77,20 +77,39 @@ export default class PaymentsService {
       },
     };
 
-    const serverKey = Buffer.from(
-      this.configService.get('MIDTRANS_SERVER_KEY'),
-    ).toString('base64');
+    const serverKey = this.configService.get('MIDTRANS_SERVER_KEY');
+    if (!serverKey) {
+      throw new Error('MIDTRANS_SERVER_KEY is not set');
+    }
 
-    const midtransUrl =
-      this.configService.get('NODE_ENV') === 'production'
-        ? 'https://app.midtrans.com/snap/v1/transactions'
-        : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
+    // Auto-detect sandbox: jika server key sandbox, force pakai sandbox URL
+    // Ini lebih robust karena tidak bergantung pada NODE_ENV yang mungkin salah di-set
+    const isSandboxKey = serverKey.startsWith('SB-Mid-server');
+    const nodeEnv = this.configService.get('NODE_ENV');
+    const isProduction = nodeEnv === 'production' && nodeEnv !== undefined && !isSandboxKey;
+    
+    // Force sandbox URL jika server key sandbox, regardless of NODE_ENV
+    const midtransUrl = isSandboxKey || !isProduction
+      ? 'https://app.sandbox.midtrans.com/snap/v1/transactions'
+      : 'https://app.midtrans.com/snap/v1/transactions';
+
+    // Base64 encode server key for Basic Auth
+    const encodedServerKey = Buffer.from(serverKey).toString('base64');
+
+    console.log('Midtrans Config:', {
+      nodeEnv,
+      isSandboxKey,
+      isProduction,
+      midtransUrl,
+      serverKeyPrefix: serverKey.substring(0, 10) + '...',
+      serverKeyStartsWith: isSandboxKey ? 'Sandbox' : 'Production',
+    });
 
     try {
       const { data } = await axios.post(midtransUrl, params, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Basic ${serverKey}`,
+          Authorization: `Basic ${encodedServerKey}`,
           'Content-Type': 'application/json',
         },
       });
@@ -151,7 +170,11 @@ export default class PaymentsService {
           where: ({ id }, { eq }) => eq(id, midtransBody.order_id),
         });
 
-      if (midtransBody?.transaction_status == 'settlement') {
+      // Handle both 'capture' and 'settlement' as successful payment
+      // 'capture' = payment successful but not yet settled (credit card)
+      // 'settlement' = payment fully settled
+      if (midtransBody?.transaction_status === 'settlement' || 
+          midtransBody?.transaction_status === 'capture') {
         // Update referral usage
         if (orderedSubscriptions.referal) {
           const referal = await this.db.query.referralCode.findFirst({
@@ -187,7 +210,8 @@ export default class PaymentsService {
 
         console.log({
           user: updatedUserIds[0],
-          message: 'Transaction Settled',
+          message: `Transaction ${midtransBody?.transaction_status === 'capture' ? 'Captured' : 'Settled'}`,
+          transaction_status: midtransBody?.transaction_status,
           new_validity_date: newValidityDate,
           transaction: transaction[0],
         });
