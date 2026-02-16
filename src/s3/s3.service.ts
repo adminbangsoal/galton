@@ -45,7 +45,7 @@ export class S3Service {
 
     const command = new PutObjectCommand(params);
 
-    const response = await this.s3.send(command);
+    const response = await (this.s3 as any).send(command);
 
     if (response.$metadata.httpStatusCode == 200) {
       const res = {

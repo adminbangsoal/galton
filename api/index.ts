@@ -127,19 +127,49 @@ function getAllowedOrigins(): string[] {
 function setCorsHeaders(res: any, origin: string | undefined) {
   const allowedOrigins = getAllowedOrigins();
   
+  // Normalize origin (remove trailing slash, convert to lowercase for comparison)
+  const normalizedOrigin = origin ? origin.toLowerCase().replace(/\/$/, '') : undefined;
+  const normalizedAllowedOrigins = allowedOrigins.map(o => o.toLowerCase().replace(/\/$/, ''));
+  
+  // Determine the origin to allow
+  let allowedOrigin: string;
+  
   if (process.env.NODE_ENV !== 'production') {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-  } else if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // In development, allow the requesting origin or all origins
+    allowedOrigin = origin || '*';
+  } else {
+    // In production, check if origin is in allowed list
+    if (!origin) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      allowedOrigin = '*';
+    } else {
+      // Check if origin matches (case-insensitive, ignore trailing slash)
+      const isAllowed = normalizedAllowedOrigins.includes(normalizedOrigin!);
+      
+      if (isAllowed) {
+        // Use the original origin (not normalized) to preserve case
+        allowedOrigin = origin;
+      } else {
+        // Origin not in allowed list
+        console.warn(`[CORS] Blocked origin: ${origin}. Allowed:`, allowedOrigins);
+        // Still set the origin header for OPTIONS to complete, but browser will reject actual request
+        // This allows the preflight to succeed so we can see the error in the actual request
+        allowedOrigin = origin;
+      }
+    }
   }
   
+  // Always set CORS headers (required for OPTIONS preflight to work)
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Log for debugging (only in non-production or if origin doesn't match)
+  if (process.env.NODE_ENV !== 'production' || !normalizedAllowedOrigins.includes(normalizedOrigin || '')) {
+    console.log(`[CORS] Request from origin: ${origin || '(no origin)'}, Allowed: ${allowedOrigin}`);
+  }
 }
 
 export default async function handler(req: any, res: any) {
@@ -147,10 +177,22 @@ export default async function handler(req: any, res: any) {
 
   // Handle OPTIONS request explicitly before NestJS to avoid 401 from guards
   if (req.method === 'OPTIONS') {
-    setCorsHeaders(res, origin);
-    res.status(204);
-    res.end();
-    return;
+    try {
+      setCorsHeaders(res, origin);
+      res.status(204).end();
+      return;
+    } catch (error: any) {
+      console.error('OPTIONS handler error:', error);
+      // Even on error, try to set CORS headers
+      try {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Turing, baggage, sentry-trace, X-Requested-With, Accept, Origin');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      } catch {}
+      res.status(204).end();
+      return;
+    }
   }
 
   try {
@@ -158,7 +200,8 @@ export default async function handler(req: any, res: any) {
     
     // Set CORS headers before processing request
     setCorsHeaders(res, origin);
-    expressApp(req, res);
+    // Express app can be called as a request handler
+    (expressApp as any)(req, res);
   } catch (error: any) {
     console.error('Handler error:', error);
     console.error('Error stack:', error?.stack);
