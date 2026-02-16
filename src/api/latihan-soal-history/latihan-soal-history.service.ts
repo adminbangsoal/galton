@@ -8,7 +8,6 @@ import { truncateLatexText } from '../../common/lib/utils';
 import LatihanSoalService from '../latihan-soal/latihan-soal.service';
 import { LatihanSoalSummary } from '../latihan-soal/latihan-soal.type';
 import { MathpixMarkdownModel } from 'mathpix-markdown-it';
-import * as Window from 'window';
 import { JSDOM } from 'jsdom';
 
 @Injectable()
@@ -68,6 +67,7 @@ export class LatihanSoalHistoryService {
       .where(
         and(
           eq(question_attempts.user_id, userId),
+          isNotNull(questions.id), // Ensure question exists
           eq(questions.subject_id, subjectId),
           topicId && eq(questions.topic_id, topicId),
           minYear && !maxYear && gte(questions.year, minYear),
@@ -79,11 +79,11 @@ export class LatihanSoalHistoryService {
       )
       .execute();
 
-    const window = new Window();
-    global.window = window;
-    global.document = window.document;
+    const jsdom = new JSDOM();
+    global.window = jsdom.window as any;
+    global.document = jsdom.window.document;
 
-    global.DOMParser = new JSDOM().window.DOMParser;
+    global.DOMParser = jsdom.window.DOMParser;
 
     const options = {
       htmlTags: true,
@@ -91,7 +91,19 @@ export class LatihanSoalHistoryService {
     };
 
     for (let i = 0; i < result.length; i++) {
+      // Check if questions exists and is an array
+      if (!result[i].questions || !Array.isArray(result[i].questions) || result[i].questions.length === 0) {
+        // Skip this item if questions is missing or empty
+        continue;
+      }
+
       const firstContent = result[i].questions.find(({ isMedia }) => !isMedia);
+
+      // Check if firstContent exists
+      if (!firstContent || !firstContent.content) {
+        // Skip this item if no valid content found
+        continue;
+      }
 
       result[i].questions = [
         {
@@ -278,6 +290,7 @@ export class LatihanSoalHistoryService {
       .where(
         and(
           eq(question_attempts.user_id, userId),
+          isNotNull(questions.id), // Ensure question exists
           eq(questions.subject_id, subjectId),
           topicId && eq(questions.topic_id, topicId),
           minYear && !maxYear && gte(questions.year, minYear),
@@ -290,18 +303,31 @@ export class LatihanSoalHistoryService {
       .limit(limit || undefined)
       .execute();
 
-    const window = new Window();
-    global.window = window;
-    global.document = window.document;
+    const jsdom = new JSDOM();
+    global.window = jsdom.window as any;
+    global.document = jsdom.window.document;
 
-    global.DOMParser = new JSDOM().window.DOMParser;
+    global.DOMParser = jsdom.window.DOMParser;
 
     const options = {
       htmlTags: true,
     };
 
     for (let i = 0; i < result.length; i++) {
+      // Check if questions exists and is an array
+      if (!result[i].questions || !Array.isArray(result[i].questions) || result[i].questions.length === 0) {
+        // Skip this item if questions is missing or empty
+        continue;
+      }
+
       const firstContent = result[i].questions.find(({ isMedia }) => !isMedia);
+
+      // Check if firstContent exists
+      if (!firstContent || !firstContent.content) {
+        // Skip this item if no valid content found
+        continue;
+      }
+
       result[i].questions = [
         {
           content: MathpixMarkdownModel.markdownToHTML(
