@@ -12,6 +12,7 @@ export * from './question-attempts.schema';
 export * from './bang-catatan.schema';
 export * from './transactions.schema';
 export * from './transaction-orders.schema';
+export * from './subscriptions.schema';
 export * from './leaderboard-backup.schema';
 export * from './question-feedbacks.schema';
 export * from './pdf.schema';

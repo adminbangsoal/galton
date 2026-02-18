@@ -34,7 +34,27 @@ export default class PaymentsController {
 
   @Post('transaction')
   @HttpCode(200)
-  async createTransaction(@Body() midtransBody: any) {
-    return this.paymentsService.createTransaction(midtransBody);
+  async createTransaction(@Body() midtransBody: any, @Req() req: Request) {
+    console.log('=== MIDTRANS WEBHOOK RECEIVED ===');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    console.log('Body:', JSON.stringify(midtransBody, null, 2));
+    console.log('Transaction Status:', midtransBody?.transaction_status);
+    console.log('Order ID:', midtransBody?.order_id);
+    console.log('Transaction ID:', midtransBody?.transaction_id);
+    
+    try {
+      const result = await this.paymentsService.createTransaction(midtransBody);
+      console.log('=== TRANSACTION PROCESSED SUCCESSFULLY ===');
+      return result;
+    } catch (error) {
+      console.error('=== ERROR PROCESSING TRANSACTION ===');
+      console.error('Error:', error);
+      console.error('Stack:', error.stack);
+      // Still return 200 to Midtrans to prevent retries
+      return {
+        message: 'Error processing transaction',
+        error: error.message,
+      };
+    }
   }
 }
