@@ -141,64 +141,147 @@ export default class PaymentsService {
   }
 
   async createTransaction(midtransBody: any) {
-    console.log(`Creating Transaction: ${midtransBody}`);
+    console.log(`Creating Transaction:`, JSON.stringify(midtransBody, null, 2));
 
-    const userId: string = midtransBody.order_id
-      .split('-')
-      .slice(0, 5)
-      .join('-');
+    // Extract user_id from order_id
+    // order_id format: {user_id}-{timestamp}
+    // user_id is UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx (36 chars with dashes)
+    // UUID has 5 parts separated by dashes
+    const orderIdParts = midtransBody.order_id.split('-');
+    
+    // Validate order_id format
+    if (orderIdParts.length < 6) {
+      console.error(`Invalid order_id format: ${midtransBody.order_id}`);
+      throw new Error(`Invalid order_id format: ${midtransBody.order_id}`);
+    }
+    
+    // UUID has 5 parts, timestamp is the 6th part
+    const userId = orderIdParts.slice(0, 5).join('-');
+
+    console.log(`Extracted userId: ${userId} from order_id: ${midtransBody.order_id}`);
 
     try {
-      const value = {
+      // Step 1: Insert/Update transaction
+      const transactionValue = {
         id: midtransBody.transaction_id,
         user_id: userId,
         timestamp: new Date(),
         metadata: midtransBody,
         order_id: midtransBody.order_id,
       };
-      const transaction = await this.db
-        .insert(schema.transactions)
-        .values(value)
-        .onConflictDoUpdate({
-          target: schema.transactions.id,
-          set: value,
-        })
-        .returning();
 
+      let transaction;
+      try {
+        transaction = await this.db
+          .insert(schema.transactions)
+          .values(transactionValue)
+          .onConflictDoUpdate({
+            target: schema.transactions.id,
+            set: {
+              user_id: transactionValue.user_id,
+              timestamp: transactionValue.timestamp,
+              metadata: transactionValue.metadata,
+              order_id: transactionValue.order_id,
+            },
+          })
+          .returning();
+        console.log('Transaction inserted/updated:', transaction[0]?.id);
+      } catch (transactionErr) {
+        console.error('Error inserting transaction:', transactionErr);
+        throw transactionErr;
+      }
+
+      // Step 2: Get transaction order details
       const orderedSubscriptions =
         await this.db.query.transactionOrders.findFirst({
           where: ({ id }, { eq }) => eq(id, midtransBody.order_id),
         });
 
+      if (!orderedSubscriptions) {
+        console.error(`Transaction order not found for order_id: ${midtransBody.order_id}`);
+        throw new NotFoundException(`Transaction order not found: ${midtransBody.order_id}`);
+      }
+
+      // Step 3: Handle successful payment
       // Handle both 'capture' and 'settlement' as successful payment
       // 'capture' = payment successful but not yet settled (credit card)
       // 'settlement' = payment fully settled
       if (midtransBody?.transaction_status === 'settlement' || 
           midtransBody?.transaction_status === 'capture') {
-        // Update referral usage
-        if (orderedSubscriptions.referal) {
-          const referal = await this.db.query.referralCode.findFirst({
-            where: eq(schema.referralCode.id, orderedSubscriptions.referal),
-          });
-
-          await this.db.update(schema.referralUsage).set({
-            referral_code: referal.code,
-            userId: userId,
-            orderId: midtransBody.order_id,
-          });
-        }
-
-        const newValidityDate = dayjs(orderedSubscriptions.timestamp)
+        
+        // Calculate expiration date
+        const paymentDate = orderedSubscriptions.timestamp || new Date();
+        const expiredDate = dayjs(paymentDate)
           .add(
             subscriptionsTypeValue[orderedSubscriptions.subscription_type],
             'day',
           )
           .toDate();
 
+        // Step 3a: Update referral usage if applicable
+        if (orderedSubscriptions.referal) {
+          try {
+            const referal = await this.db.query.referralCode.findFirst({
+              where: eq(schema.referralCode.id, orderedSubscriptions.referal),
+            });
+
+            if (referal) {
+              await this.db.update(schema.referralUsage).set({
+                referral_code: referal.code,
+                userId: userId,
+                orderId: midtransBody.order_id,
+              });
+              console.log('Referral usage updated');
+            }
+          } catch (referralErr) {
+            console.error('Error updating referral usage:', referralErr);
+            // Don't throw, continue with subscription creation
+          }
+        }
+
+        // Step 3b: Create/Update subscription record
+        try {
+          // Check if subscription already exists for this transaction
+          const existingSubscription = await this.db.query.subscriptions.findFirst({
+            where: ({ transaction_id }, { eq }) => eq(transaction_id, midtransBody.transaction_id),
+          });
+
+          if (existingSubscription) {
+            // Update existing subscription
+            await this.db
+              .update(schema.subscriptions)
+              .set({
+                is_active: true,
+                expired_date: expiredDate,
+                updated_at: new Date(),
+              })
+              .where(eq(schema.subscriptions.id, existingSubscription.id));
+            console.log('Subscription updated:', existingSubscription.id);
+          } else {
+            // Create new subscription
+            const newSubscription = await this.db
+              .insert(schema.subscriptions)
+              .values({
+                user_id: userId,
+                subscription_type: orderedSubscriptions.subscription_type,
+                transaction_id: midtransBody.transaction_id,
+                payment_date: paymentDate,
+                expired_date: expiredDate,
+                is_active: true,
+              })
+              .returning();
+            console.log('Subscription created:', newSubscription[0]?.id);
+          }
+        } catch (subscriptionErr) {
+          console.error('Error creating/updating subscription:', subscriptionErr);
+          // Don't throw, continue with user validity update
+        }
+
+        // Step 3c: Update user validity date
         const updatedUserIds = await this.db
           .update(schema.users)
           .set({
-            validity_date: newValidityDate,
+            validity_date: expiredDate,
           })
           .where(eq(schema.users.id, userId))
           .returning({
@@ -206,25 +289,26 @@ export default class PaymentsService {
             validity_date: schema.users.validity_date,
           });
 
-        console.log('Transaction CREATED: \n');
-
+        console.log('Transaction CREATED successfully:');
         console.log({
           user: updatedUserIds[0],
           message: `Transaction ${midtransBody?.transaction_status === 'capture' ? 'Captured' : 'Settled'}`,
           transaction_status: midtransBody?.transaction_status,
-          new_validity_date: newValidityDate,
+          new_validity_date: expiredDate,
+          subscription_type: orderedSubscriptions.subscription_type,
           transaction: transaction[0],
         });
-
-        console.log('NEW USER AFTER TRANSACTION: \n');
-
-        console.log(updatedUserIds[0]);
+      } else {
+        console.log(`Transaction status: ${midtransBody?.transaction_status} - not processing subscription`);
       }
+
       return {
-        message: 'Transaction created',
+        message: 'Transaction processed',
+        transaction_id: midtransBody.transaction_id,
+        status: midtransBody?.transaction_status,
       };
     } catch (err) {
-      console.error(err);
+      console.error('Error in createTransaction:', err);
       throw err;
     }
   }

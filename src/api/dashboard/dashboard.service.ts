@@ -230,6 +230,7 @@ export class DashboardService {
             topic: subject.topic,
             correct: 0,
             total_question: topicQuestionsCount[subject.topicId] || 0,
+            total_attempt: 0, // Total questions attempted by user in this topic
           });
           topicMapIndex[subject.topic] = topic.topics.length - 1;
         }
@@ -276,6 +277,19 @@ export class DashboardService {
     for (let i = 0; i < attemptedQuestionsDistinct.length; i++) {
       const attempt = attemptedQuestionsDistinct[i];
 
+      const subjectIndex = subjectMapIndex[attempt.subject];
+      const topicIndex = topicMapIndex[attempt.topic];
+      
+      // Count total attempts (both correct and incorrect)
+      if (
+        subjectIndex !== undefined &&
+        topicIndex !== undefined &&
+        mappedTopics[subjectIndex]?.topics[topicIndex]?.total_attempt !== undefined
+      ) {
+        mappedTopics[subjectIndex].topics[topicIndex].total_attempt += 1;
+      }
+
+      // Count correct answers
       if (
         this.latihanSoalService.isAnswerCorrect(
           {
@@ -286,8 +300,6 @@ export class DashboardService {
           attempt.choiceId || attempt.filledAnswers,
         )
       ) {
-        const subjectIndex = subjectMapIndex[attempt.subject];
-        const topicIndex = topicMapIndex[attempt.topic];
         if (
           subjectIndex !== undefined &&
           topicIndex !== undefined &&
@@ -299,8 +311,6 @@ export class DashboardService {
             `Subject or topic index not found for ${attempt.subject} ${attempt.topic} for user ${userId}`,
           );
         }
-      } else {
-        continue;
       }
     }
 
