@@ -16,9 +16,18 @@ export class FirebaseService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
-    const privateKey = this.configService
-      .get<string>('FIREBASE_PRIVATE_KEY')
-      .replace(/\\n/g, '\n');
+    const privateKeyRaw = this.configService.get<string>('FIREBASE_PRIVATE_KEY');
+    if (!privateKeyRaw) {
+      throw new Error('FIREBASE_PRIVATE_KEY environment variable is not set');
+    }
+    
+    let privateKey: string;
+    try {
+      privateKey = Buffer.from(privateKeyRaw, 'base64').toString('utf-8');
+    } catch {
+      privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+    }
+    
     this.firebaseApp = initializeApp({
       credential: cert({
         privateKey: privateKey,
