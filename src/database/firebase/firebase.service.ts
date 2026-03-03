@@ -21,12 +21,40 @@ export class FirebaseService implements OnModuleInit {
       throw new Error('FIREBASE_PRIVATE_KEY environment variable is not set');
     }
     
+    console.log('Private key raw length:', privateKeyRaw.length);
+    console.log('Private key starts with:', privateKeyRaw.substring(0, 30));
+    
     let privateKey: string;
+    
     try {
-      privateKey = Buffer.from(privateKeyRaw, 'base64').toString('utf-8');
-    } catch {
-      privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+      const decoded = Buffer.from(privateKeyRaw, 'base64').toString('utf-8');
+      console.log('Base64 decoded length:', decoded.length);
+      console.log('Decoded starts with:', decoded.substring(0, 30));
+      
+      if (decoded.includes('-----BEGIN PRIVATE KEY-----') || decoded.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+        privateKey = decoded;
+        console.log('Using base64 decoded private key');
+      } else {
+        throw new Error('Decoded is not a valid PEM format');
+      }
+    } catch (base64Error) {
+      console.log('Base64 decode failed, trying escaped newlines');
+      const withNewlines = privateKeyRaw.replace(/\\n/g, '\n');
+      
+      if (withNewlines.includes('-----BEGIN PRIVATE KEY-----') || withNewlines.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+        privateKey = withNewlines;
+        console.log('Using escaped newlines private key');
+      } else if (privateKeyRaw.includes('-----BEGIN PRIVATE KEY-----') || privateKeyRaw.includes('-----BEGIN RSA PRIVATE KEY-----')) {
+        privateKey = privateKeyRaw;
+        console.log('Using raw private key (already has newlines)');
+      } else {
+        console.error('Private key format validation failed');
+        console.error('Contains BEGIN PRIVATE KEY:', privateKeyRaw.includes('BEGIN PRIVATE KEY'));
+        throw new Error('Invalid FIREBASE_PRIVATE_KEY format. Expected PEM format or base64 encoded PEM.');
+      }
     }
+    
+    console.log('Final private key length:', privateKey.length);
     
     this.firebaseApp = initializeApp({
       credential: cert({
