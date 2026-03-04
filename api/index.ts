@@ -25,6 +25,7 @@ async function bootstrap() {
       const allowedOrigins = process.env.NODE_ENV === 'production'
         ? [
             'https://bangsoal.co.id',
+            'https://app.bangsoal.co.id',
             'https://www.bangsoal.co.id',
             process.env.FRONTEND_URL,
             'https://francis.nafhan.space',
@@ -107,6 +108,7 @@ function getAllowedOrigins(): string[] {
   return process.env.NODE_ENV === 'production'
     ? [
         'https://bangsoal.co.id',
+        'https://app.bangsoal.co.id',
         'https://www.bangsoal.co.id',
         process.env.FRONTEND_URL,
         'https://francis.nafhan.space',
