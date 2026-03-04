@@ -64,7 +64,8 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  console.log('🚀 Backend server starting on port 8080');
+  const port = process.env.PORT || 8080;
+  console.log('🚀 Backend server starting on port', port);
   console.log('📡 CORS enabled for origins:', allowedOrigins);
 
   app.setGlobalPrefix('api');
@@ -82,9 +83,9 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, document);
   }
 
-  await app.listen(8080);
-  console.log('✅ Backend server is running on http://localhost:8080');
-  console.log('📚 API Documentation available at http://localhost:8080/docs');
-  console.log('🏥 Health check available at http://localhost:8080/api/health');
+  await app.listen(port);
+  console.log(`✅ Backend server is running on http://localhost:${port}`);
+  console.log(`📚 API Documentation available at http://localhost:${port}/docs`);
+  console.log(`🏥 Health check available at http://localhost:${port}/api/health`);
 }
 bootstrap();
