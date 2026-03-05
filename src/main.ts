@@ -70,6 +70,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 8080;
   console.log('🚀 Backend server starting on port', port);
+  console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
   console.log('📡 CORS enabled for origins:', allowedOrigins);
 
   app.setGlobalPrefix('api');
