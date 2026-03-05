@@ -16,7 +16,6 @@ async function bootstrap() {
           'https://app.bangsoal.co.id',
           'https://dev-app.bangsoal.co.id',
           'https://dev-api.bangsoal.co.id',
-          'https://francis.nafhan.space', // Add Francis frontend domain
           process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
         ]
           .filter(Boolean)
@@ -28,8 +27,6 @@ async function bootstrap() {
           'http://localhost:3001',
           'http://127.0.0.1:3000',
           'http://127.0.0.1:3001',
-          'https://francis.nafhan.space', // Explicitly add dev domain
-          'https://galton.nafhan.space', // Allow backend domain as well
           'https://api.bangsoal.co.id',
           'https://dev-app.bangsoal.co.id',
           'https://dev-api.bangsoal.co.id',

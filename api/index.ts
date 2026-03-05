@@ -30,14 +30,12 @@ async function bootstrap() {
             'https://dev-app.bangsoal.co.id',
             'https://dev-api.bangsoal.co.id',
             process.env.FRONTEND_URL,
-            'https://francis.nafhan.space',
           ].filter(Boolean)
         : [
             'http://localhost:3000',
             'http://localhost:3001',
             'http://127.0.0.1:3000',
             'http://127.0.0.1:3001',
-            'https://francis.nafhan.space',
             'https://bangsoal.co.id',
             'https://www.bangsoal.co.id',
             'https://dev-app.bangsoal.co.id',
@@ -117,14 +115,12 @@ function getAllowedOrigins(): string[] {
         'https://dev-app.bangsoal.co.id',
         'https://dev-api.bangsoal.co.id',
         process.env.FRONTEND_URL,
-        'https://francis.nafhan.space',
       ].filter(Boolean)
     : [
         'http://localhost:3000',
         'http://localhost:3001',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
-        'https://francis.nafhan.space',
         'https://bangsoal.co.id',
         'https://www.bangsoal.co.id',
         'https://dev-app.bangsoal.co.id',
