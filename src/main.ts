@@ -16,6 +16,7 @@ async function bootstrap() {
           'https://app.bangsoal.co.id',
           'https://dev-app.bangsoal.co.id',
           'https://dev-api.bangsoal.co.id',
+          'https://galton.nafhan.space',
           process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
         ]
           .filter(Boolean)
@@ -30,6 +31,7 @@ async function bootstrap() {
           'https://api.bangsoal.co.id',
           'https://dev-app.bangsoal.co.id',
           'https://dev-api.bangsoal.co.id',
+          'https://galton.nafhan.space',
           process.env.FRONTEND_URL || 'http://localhost:3000',
           process.env.ALLOWED_ORIGINS || '', // Additional allowed origins (comma-separated)
         ].filter(Boolean);
